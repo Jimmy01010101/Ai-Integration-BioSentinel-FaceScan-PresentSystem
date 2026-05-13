@@ -1,13 +1,135 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum AttendanceStatus {
+  SUCCESS
+  FAILED
+  SPOOF_DETECTED
+  LATE
+}
+
+model SuperAdmin {
+  id Int @id @default(autoincrement())
+
+  username String @unique
+  password String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+
+  username String @unique
+  password String
+
+  fullName String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  fullName       String
+  identityNumber String @unique
+
+  division String?
+
+  faceDescriptor String @db.LongText
+
+  faceImage String?
+
+  isActive Boolean @default(true)
+
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AttendanceSession {
+  id Int @id @default(autoincrement())
+
+  title String
+
+  attendanceCode String
+
+  startTime DateTime
+  endTime   DateTime
+
+  isActive Boolean @default(true)
+
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id Int @id @default(autoincrement())
+
+  userId              Int
+  attendanceSessionId Int
+
+  user User @relation(fields: [userId], references: [id])
+
+  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
+
+  confidenceScore Float
+
+  smileVerified    Boolean @default(false)
+  blinkVerified    Boolean @default(false)
+  livenessVerified Boolean @default(false)
+
+  spoofDetected Boolean @default(false)
+
+  faceImage String?
+
+  status AttendanceStatus
+
+  checkInTime DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SpoofLog {
+  id Int @id @default(autoincrement())
+
+  detectedType String
+
+  description String?
+
+  faceImage String?
+
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id Int @id @default(autoincrement())
+
+  attendanceStartTime String
+  attendanceEndTime   String
+
+  enableSmileVerification Boolean @default(true)
+  enableBlinkVerification Boolean @default(true)
+  enableLivenessDetection Boolean @default(true)
+  enableAntiSpoof         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

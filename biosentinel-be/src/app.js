@@ -7,6 +7,8 @@ const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
+const sessionRoutes = require('./routes/sessionRoutes');
+const attendanceRoutes = require('./routes/attendanceRoutes');
 
 const app = express();
 
@@ -21,6 +23,10 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/user', userRoutes);
+
+// Attedance
+app.use('/api/session', sessionRoutes);
+app.use('/api/attendance', attendanceRoutes);
 
 app.get('/', (req, res) => {
   return res.json({
