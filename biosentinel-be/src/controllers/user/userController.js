@@ -10,34 +10,40 @@ const createUser = async (req, res) => {
       faceDescriptor
     } = req.body;
 
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        identityNumber
-      }
-    });
+    // CHECK EXISTING USER
+    const existingUser =
+      await prisma.user.findUnique({
+        where: {
+          identityNumber
+        }
+      });
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: 'Identity number already exists'
+        message: 'User already exists'
       });
     }
 
+    // HANDLE IMAGE UPLOAD
     let faceImage = null;
 
     if (req.file) {
       faceImage = req.file.path;
     }
 
-    const user = await prisma.user.create({
-      data: {
-        fullName,
-        identityNumber,
-        division,
-        faceDescriptor: JSON.parse(faceDescriptor),
-        faceImage
-      }
-    });
+    // CREATE USER
+    const user =
+      await prisma.user.create({
+        data: {
+          fullName,
+          identityNumber,
+          division,
+          faceDescriptor,
+
+          faceImage
+        }
+      });
 
     return res.status(201).json({
       success: true,
@@ -58,4 +64,4 @@ const createUser = async (req, res) => {
 
 module.exports = {
   createUser
-}; 
+};

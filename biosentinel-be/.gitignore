@@ -4,3 +4,11 @@ node_modules
 
 /generated/prisma
 b
+
+uploads/users/*
+uploads/attendance/*
+uploads/spoof/*
+
+!uploads/users/.gitkeep
+!uploads/attendance/.gitkeep
+!uploads/spoof/.gitkeep
