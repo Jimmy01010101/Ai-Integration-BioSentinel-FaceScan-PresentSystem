@@ -1,5 +1,8 @@
 const prisma = require('../../config/prisma');
 
+const { getIO } =
+  require('../../socket/socket');
+
 const verifyUserAttendance = async (req, res) => {
   try {
 
@@ -163,6 +166,31 @@ const checkInAttendance = async (req, res) => {
         }
       });
 
+    const totalAttendance =
+      await prisma.attendance.count({
+        where: {
+          attendanceSessionId: activeSession.id,
+          status: 'HADIR'
+        }
+      });
+
+    const io = getIO();
+
+    io.emit('attendance:new', {
+      user: {
+        fullName: user.fullName,
+        identityNumber: user.identityNumber,
+        division: user.division
+      },
+      attendance: {
+        status: 'HADIR',
+        createdAt: attendance.createdAt
+      },
+      statistics: {
+        totalAttendance
+      }
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Attendance successful',
@@ -205,15 +233,25 @@ const getAttendanceHistory = async (req, res) => {
     }
 
     if (date) {
-      const startDate = new Date(date);
-      const endDate = new Date(date);
 
-      endDate.setHours(23, 59, 59, 999);
+      const startDate =
+        new Date(date);
+
+      const endDate =
+        new Date(date);
+
+      endDate.setHours(
+        23,
+        59,
+        59,
+        999
+      );
 
       filters.createdAt = {
         gte: startDate,
         lte: endDate
       };
+
     }
 
     if (month && year) {

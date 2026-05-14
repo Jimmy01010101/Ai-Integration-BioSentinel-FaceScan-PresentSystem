@@ -1,5 +1,10 @@
 const prisma = require('../../config/prisma');
 
+const {
+  convertWIBToUTC,
+  convertUTCToWIB
+} = require('../../utils/timezone');
+
 const createAttendanceSession = async (req, res) => {
   try {
 
@@ -20,19 +25,50 @@ const createAttendanceSession = async (req, res) => {
       });
     }
 
+    // NONAKTIFKAN SESSION LAMA
+    await prisma.attendanceSession.updateMany({
+      where: {
+        isActive: true
+      },
+      data: {
+        isActive: false
+      }
+    });
+
+    // BUAT SESSION BARU
     const session =
       await prisma.attendanceSession.create({
         data: {
           title,
-          startTime: new Date(startTime),
-          endTime: new Date(endTime),
+
+          startTime:
+            convertWIBToUTC(startTime),
+
+          endTime:
+            convertWIBToUTC(endTime),
+
           isActive: true
         }
       });
 
     return res.status(201).json({
       success: true,
-      data: session
+      message:
+        'Attendance session created',
+
+      data: {
+        ...session,
+
+        startTimeWIB:
+          convertUTCToWIB(
+            session.startTime
+          ),
+
+        endTimeWIB:
+          convertUTCToWIB(
+            session.endTime
+          )
+      }
     });
 
   } catch (error) {
@@ -41,13 +77,17 @@ const createAttendanceSession = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message:
+        'Internal server error'
     });
 
   }
 };
 
-const getActiveSession = async (req, res) => {
+const getActiveSession = async (
+  req,
+  res
+) => {
   try {
 
     const now = new Date();
@@ -56,28 +96,47 @@ const getActiveSession = async (req, res) => {
       await prisma.attendanceSession.findFirst({
         where: {
           isActive: true,
+
           startTime: {
             lte: now
           },
+
           endTime: {
             gte: now
           }
         },
+
         orderBy: {
           createdAt: 'desc'
         }
       });
 
     if (!session) {
+
       return res.status(404).json({
         success: false,
-        message: 'No active attendance session'
+        message:
+          'No active attendance session'
       });
+
     }
 
     return res.status(200).json({
       success: true,
-      data: session
+
+      data: {
+        ...session,
+
+        startTimeWIB:
+          convertUTCToWIB(
+            session.startTime
+          ),
+
+        endTimeWIB:
+          convertUTCToWIB(
+            session.endTime
+          )
+      }
     });
 
   } catch (error) {
@@ -86,7 +145,8 @@ const getActiveSession = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message:
+        'Internal server error'
     });
 
   }

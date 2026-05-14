@@ -9,7 +9,7 @@ const attendanceAutoAbsent = () => {
     try {
 
       console.log(
-        '⏳ Running auto absent engine...'
+        'Running auto absent engine...'
       );
 
       const now = new Date();
@@ -62,7 +62,7 @@ const attendanceAutoAbsent = () => {
             });
 
             console.log(
-              `❌ Auto absent created for ${user.fullName}`
+              `Auto absent created for ${user.fullName}`
             );
 
           }
@@ -79,7 +79,7 @@ const attendanceAutoAbsent = () => {
         });
 
         console.log(
-          `✅ Session ${session.title} closed`
+          `Session ${session.title} closed`
         );
 
       }
