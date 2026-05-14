@@ -7,129 +7,119 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
+enum UserRole {
   SUPER_ADMIN
   ADMIN
 }
 
 enum AttendanceStatus {
-  SUCCESS
-  FAILED
-  SPOOF_DETECTED
-  LATE
+  HADIR
+  ABSEN
+  IZIN
+  SAKIT
+  CUTI
 }
 
 model SuperAdmin {
-  id Int @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  fullName   String   @default("Super Admin") 
+  isActive   Boolean  @default(true)
 
-  username String @unique
-  password String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Admin {
-  id Int @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  password   String
+  fullName   String
 
-  username String @unique
-  password String
+  isActive   Boolean  @default(true)
 
-  fullName String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model User {
-  id Int @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
 
-  fullName       String
-  identityNumber String @unique
+  fullName          String
+  identityNumber    String   @unique
+  division          String
 
-  division String?
+  faceDescriptor    Json
+  faceImage         String?
 
-  faceDescriptor String @db.LongText
+  isActive          Boolean  @default(true)
 
-  faceImage String?
+  attendances       Attendance[]
 
-  isActive Boolean @default(true)
-
-  attendances Attendance[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model AttendanceSession {
-  id Int @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
 
-  title String
+  title        String
 
-  attendanceCode String
+  startTime    DateTime
+  endTime      DateTime
 
-  startTime DateTime
-  endTime   DateTime
+  isActive     Boolean  @default(true)
 
-  isActive Boolean @default(true)
+  attendances  Attendance[]
 
-  attendances Attendance[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model Attendance {
-  id Int @id @default(autoincrement())
+  id                    Int      @id @default(autoincrement())
 
-  userId              Int
-  attendanceSessionId Int
+  userId                Int
+  attendanceSessionId   Int
 
-  user User @relation(fields: [userId], references: [id])
+  confidenceScore       Float?
 
-  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
+  smileVerified         Boolean  @default(false)
+  blinkVerified         Boolean  @default(false)
+  livenessVerified      Boolean  @default(false)
 
-  confidenceScore Float
+  spoofDetected         Boolean  @default(false)
 
-  smileVerified    Boolean @default(false)
-  blinkVerified    Boolean @default(false)
-  livenessVerified Boolean @default(false)
+  status                AttendanceStatus
 
-  spoofDetected Boolean @default(false)
+  user                  User @relation(fields: [userId], references: [id])
 
-  faceImage String?
+  attendanceSession     AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
 
-  status AttendanceStatus
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
-  checkInTime DateTime @default(now())
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+  @@unique([userId, attendanceSessionId])
+} 
 
 model SpoofLog {
-  id Int @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
 
-  detectedType String
+  userId       Int?
+  imagePath    String?
 
-  description String?
+  reason       String
 
-  faceImage String?
-
-  createdAt DateTime @default(now())
+  createdAt    DateTime @default(now())
 }
 
 model SystemSetting {
-  id Int @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
 
-  attendanceStartTime String
-  attendanceEndTime   String
+  settingKey    String   @unique
+  settingValue  String
 
-  enableSmileVerification Boolean @default(true)
-  enableBlinkVerification Boolean @default(true)
-  enableLivenessDetection Boolean @default(true)
-  enableAntiSpoof         Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+} 

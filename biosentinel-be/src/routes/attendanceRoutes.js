@@ -9,16 +9,17 @@ const roleMiddleware =
   require('../middleware/roleMiddleware');
 
 const {
-  validateAttendanceCode,
+  verifyUserAttendance,
   checkInAttendance,
-  getAttendanceHistory
+  getAttendanceHistory,
+  updateAttendanceStatus
 } = require(
   '../controllers/attendance/attendanceController'
 );
 
 router.post(
-  '/validate-code',
-  validateAttendanceCode
+  '/verify-user',
+  verifyUserAttendance
 );
 
 router.post(
@@ -31,6 +32,13 @@ router.get(
   authMiddleware,
   roleMiddleware('SUPER_ADMIN', 'ADMIN'),
   getAttendanceHistory
+);
+
+router.patch(
+  '/:id/status',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  updateAttendanceStatus
 );
 
 module.exports = router; 

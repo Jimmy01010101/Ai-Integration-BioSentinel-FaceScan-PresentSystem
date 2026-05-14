@@ -5,22 +5,18 @@ const createAttendanceSession = async (req, res) => {
 
     const {
       title,
-      attendanceCode,
       startTime,
       endTime
     } = req.body;
 
-    const existingSession =
-      await prisma.attendanceSession.findFirst({
-        where: {
-          attendanceCode
-        }
-      });
-
-    if (existingSession) {
+    if (
+      !title ||
+      !startTime ||
+      !endTime
+    ) {
       return res.status(400).json({
         success: false,
-        message: 'Attendance code already exists'
+        message: 'Incomplete session data'
       });
     }
 
@@ -28,9 +24,9 @@ const createAttendanceSession = async (req, res) => {
       await prisma.attendanceSession.create({
         data: {
           title,
-          attendanceCode,
           startTime: new Date(startTime),
-          endTime: new Date(endTime)
+          endTime: new Date(endTime),
+          isActive: true
         }
       });
 
@@ -99,4 +95,4 @@ const getActiveSession = async (req, res) => {
 module.exports = {
   createAttendanceSession,
   getActiveSession
-};
+}; 
