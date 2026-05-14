@@ -9,8 +9,10 @@ const adminRoutes = require('./routes/adminRoutes');
 const userRoutes = require('./routes/userRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
+const attendanceAutoAbsent = require('./cron/attendanceAutoAbsent');
 
 const app = express();
+attendanceAutoAbsent();
 
 app.use(cors());
 app.use(helmet());
