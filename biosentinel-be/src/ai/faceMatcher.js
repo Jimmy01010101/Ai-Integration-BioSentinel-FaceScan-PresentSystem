@@ -4,8 +4,14 @@ const faceapi =
 const canvas =
   require('canvas');
 
+const sharp =
+  require('sharp');
+
 const path =
   require('path');
+
+const fs =
+  require('fs');
 
 const {
   Canvas,
@@ -33,7 +39,7 @@ const loadModels = async () => {
       '../../models'
     );
 
-  await faceapi.nets.ssdMobilenetv1
+  await faceapi.nets.tinyFaceDetector
     .loadFromDisk(modelPath);
 
   await faceapi.nets.faceLandmark68Net
@@ -45,8 +51,34 @@ const loadModels = async () => {
   modelsLoaded = true;
 
   console.log(
-    'AI face models loaded'
+    '✅ Stable AI models loaded'
   );
+
+};
+
+const optimizeImage = async (
+  imagePath
+) => {
+
+  const optimizedPath =
+    imagePath.replace(
+      /\.(jpg|jpeg|png)$/i,
+      '_optimized.jpg'
+    );
+
+  await sharp(imagePath)
+
+    .resize({
+      width: 320
+    })
+
+    .jpeg({
+      quality: 70
+    })
+
+    .toFile(optimizedPath);
+
+  return optimizedPath;
 
 };
 
@@ -55,14 +87,48 @@ const extractFaceDescriptor =
 
     await loadModels();
 
+    const optimizedImagePath =
+      await optimizeImage(
+        imagePath
+      );
+
     const img =
-      await canvas.loadImage(imagePath);
+      await canvas.loadImage(
+        optimizedImagePath
+      );
 
     const detection =
       await faceapi
-        .detectSingleFace(img)
+        .detectSingleFace(
+
+          img,
+
+          new faceapi.TinyFaceDetectorOptions({
+
+            inputSize: 320,
+
+            scoreThreshold: 0.5
+
+          })
+
+        )
+
         .withFaceLandmarks()
+
         .withFaceDescriptor();
+
+    // DELETE TEMP IMAGE
+    if (
+      fs.existsSync(
+        optimizedImagePath
+      )
+    ) {
+
+      fs.unlinkSync(
+        optimizedImagePath
+      );
+
+    }
 
     if (!detection) {
       return null;
@@ -79,6 +145,17 @@ const compareFaceDescriptors = (
   descriptor2
 ) => {
 
+  if (
+    descriptor1.length !==
+    descriptor2.length
+  ) {
+
+    throw new Error(
+      'Descriptor length mismatch'
+    );
+
+  }
+
   const distance =
     faceapi.euclideanDistance(
       descriptor1,
@@ -86,8 +163,19 @@ const compareFaceDescriptors = (
     );
 
   return {
+
     distance,
-    isMatch: distance < 0.6
+
+    confidenceScore:
+      Number(
+        (
+          1 - distance
+        ).toFixed(2)
+      ),
+
+    isMatch:
+      distance < 0.55
+
   };
 
 };
