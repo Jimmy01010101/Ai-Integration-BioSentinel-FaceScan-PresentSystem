@@ -45,10 +45,15 @@ const {
 
 const {
   getAuditLogs,
-  getLoginLogs
+  getSecurityEvents
 } = require(
   '../controllers/superadmin/auditController'
 );
+
+
+// =========================
+// ADMIN MANAGEMENT
+// =========================
 
 // CREATE ADMIN
 router.post(
@@ -82,7 +87,7 @@ router.put(
   updateAdmin
 );
 
-// TOGGLE STATUS
+// TOGGLE ADMIN STATUS
 router.patch(
   '/admin/:id/toggle-status',
   authMiddleware,
@@ -97,6 +102,11 @@ router.delete(
   superAdminOnly,
   deleteAdmin
 );
+
+
+// =========================
+// USER MANAGEMENT
+// =========================
 
 // GET ALL USERS
 router.get(
@@ -147,6 +157,11 @@ router.post(
   reEnrollFace
 );
 
+
+// =========================
+// DASHBOARD
+// =========================
+
 // DASHBOARD STATS
 router.get(
   '/dashboard/stats',
@@ -171,13 +186,18 @@ router.get(
   getActiveSession
 );
 
-// REALTIME FEED BASE
+// REALTIME FEED
 router.get(
   '/dashboard/realtime',
   authMiddleware,
   superAdminOnly,
   getRealtimeFeed
-); 
+);
+
+
+// =========================
+// AUDIT & SECURITY
+// =========================
 
 // AUDIT LOGS
 router.get(
@@ -187,12 +207,13 @@ router.get(
   getAuditLogs
 );
 
-// LOGIN LOGS
+// SECURITY EVENTS
 router.get(
-  '/audit/login-logs',
+  '/audit/security-events',
   authMiddleware,
   superAdminOnly,
-  getLoginLogs
+  getSecurityEvents
 );
+
 
 module.exports = router; 

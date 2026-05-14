@@ -2,27 +2,30 @@ const prisma =
   require('../../config/prisma');
 
 
-// GET AUDIT LOGS
+// GET ALL AUDIT LOGS
 const getAuditLogs =
   async (req, res) => {
 
     try {
 
       const logs =
-        await prisma.auditLog.findMany({
+        await prisma.auditTrail.findMany({
 
           orderBy: {
             createdAt: 'desc'
           },
 
-          take: 100
+          take: 500
 
         });
 
       return res.status(200).json({
 
         success: true,
-        total: logs.length,
+
+        total:
+          logs.length,
+
         data: logs
 
       });
@@ -34,7 +37,9 @@ const getAuditLogs =
       return res.status(500).json({
 
         success: false,
-        message: 'Internal server error'
+
+        message:
+          'Internal server error'
 
       });
 
@@ -43,28 +48,59 @@ const getAuditLogs =
   };
 
 
-// GET LOGIN LOGS
-const getLoginLogs =
+// GET SECURITY EVENTS
+const getSecurityEvents =
   async (req, res) => {
 
     try {
 
-      const logs =
-        await prisma.loginLog.findMany({
+      const events =
+        await prisma.auditTrail.findMany({
+
+          where: {
+
+            OR: [
+
+              {
+                action:
+                  'LIVENESS_FAILED'
+              },
+
+              {
+                action:
+                  'FACE_MISMATCH'
+              },
+
+              {
+                action:
+                  'FACE_NOT_DETECTED'
+              },
+
+              {
+                action:
+                  'USER_NOT_FOUND'
+              }
+
+            ]
+
+          },
 
           orderBy: {
             createdAt: 'desc'
           },
 
-          take: 100
+          take: 200
 
         });
 
       return res.status(200).json({
 
         success: true,
-        total: logs.length,
-        data: logs
+
+        total:
+          events.length,
+
+        data: events
 
       });
 
@@ -75,7 +111,9 @@ const getLoginLogs =
       return res.status(500).json({
 
         success: false,
-        message: 'Internal server error'
+
+        message:
+          'Internal server error'
 
       });
 
@@ -85,6 +123,8 @@ const getLoginLogs =
 
 
 module.exports = {
+
   getAuditLogs,
-  getLoginLogs
+  getSecurityEvents
+
 }; 
