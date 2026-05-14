@@ -1,9 +1,26 @@
 require('dotenv').config();
 
+const http = require('http');
+
 const app = require('./app');
 
-const PORT = process.env.PORT || 5050;
+const {
+  initializeSocket
+} = require('./socket/socket');
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const PORT =
+  process.env.PORT || 5050;
+
+const server =
+  http.createServer(app);
+
+initializeSocket(server);
+
+server.listen(PORT, () => {
+
+  console.log(`
+BioSentinel-AI Face Scan Running
+PORT: ${PORT}
+  `);
+
 }); 
