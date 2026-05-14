@@ -154,3 +154,41 @@ model LoginLog {
   createdAt   DateTime  @default(now())
 
 }
+
+model AttendanceAttempt {
+
+  id                Int       @id @default(autoincrement())
+
+  identityNumber    String
+
+  ipAddress         String?
+  userAgent         String?   @db.Text
+
+  success           Boolean   @default(false)
+
+  reason            String?
+
+  createdAt         DateTime  @default(now())
+
+}
+
+model AuditTrail {
+
+  id            Int       @id @default(autoincrement())
+
+  actorRole     String
+  actorId       Int?
+
+  action        String
+  entity        String
+
+  entityId      Int?
+
+  description   String?   @db.Text
+
+  ipAddress     String?
+  userAgent     String?   @db.Text
+
+  createdAt     DateTime  @default(now())
+
+}

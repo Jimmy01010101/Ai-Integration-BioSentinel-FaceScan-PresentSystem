@@ -12,10 +12,28 @@ const {
   compareFaceDescriptors
 } = require('../../ai/faceMatcher');
 
+const {
+
+  createAttemptLog,
+  getFailedAttempts,
+  checkCooldown
+
+} = require(
+  '../../utils/attendanceSecurity'
+);
+
+const {
+  createAuditTrail
+} = require(
+  '../../utils/auditTrail'
+);
+
+// VERIFY USER
 const verifyUserAttendance = async (
   req,
   res
 ) => {
+
   try {
 
     const { identityNumber } =
@@ -24,35 +42,106 @@ const verifyUserAttendance = async (
     if (!identityNumber) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           'Identity number is required'
+
+      });
+
+    }
+
+    const failedAttempts =
+      await getFailedAttempts(
+        identityNumber
+      );
+
+    if (failedAttempts >= 5) {
+
+      return res.status(429).json({
+
+        success: false,
+
+        message:
+          'Too many failed attempts. Try again later.'
+
       });
 
     }
 
     const user =
       await prisma.user.findFirst({
+
         where: {
+
           identityNumber,
           isActive: true
+
         }
+
       });
 
     if (!user) {
 
-      return res.status(404).json({
+      await createAttemptLog({
+
+        identityNumber,
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers['user-agent'],
+
         success: false,
-        message: 'User not found'
+
+        reason:
+          'USER_NOT_FOUND'
+
+      });
+
+      await createAuditTrail({
+
+      actorRole:
+        'UNKNOWN',
+
+      action:
+        'USER_NOT_FOUND',
+
+      entity:
+        'Attendance',
+
+      description:
+        `Unknown identity number: ${identityNumber}`,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent']
+
+    });
+
+      return res.status(404).json({
+
+        success: false,
+
+        message:
+          'User not found'
+
       });
 
     }
 
-    const now = new Date();
+    const now =
+      new Date();
 
     const activeSession =
       await prisma.attendanceSession.findFirst({
+
         where: {
+
           isActive: true,
 
           startTime: {
@@ -62,36 +151,56 @@ const verifyUserAttendance = async (
           endTime: {
             gte: now
           }
+
         }
+
       });
 
     if (!activeSession) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           'Attendance session is not active'
+
       });
 
     }
 
     return res.status(200).json({
+
       success: true,
-      message: 'User verified',
+
+      message:
+        'User verified',
 
       data: {
+
         user: {
+
           id: user.id,
-          fullName: user.fullName,
+
+          fullName:
+            user.fullName,
+
           identityNumber:
             user.identityNumber,
-          division: user.division,
-          faceImage: user.faceImage
+
+          division:
+            user.division,
+
+          faceImage:
+            user.faceImage
+
         },
 
         attendanceSession:
           activeSession
+
       }
+
     });
 
   } catch (error) {
@@ -99,61 +208,118 @@ const verifyUserAttendance = async (
     console.error(error);
 
     return res.status(500).json({
+
       success: false,
+
       message:
         'Internal server error'
+
     });
 
   }
+
 };
 
+
+// CHECK-IN
 const checkInAttendance = async (
   req,
   res
 ) => {
+
   try {
 
     const {
+
       identityNumber,
       smileVerified,
       blinkVerified,
       livenessVerified,
       spoofDetected
+
     } = req.body;
 
     if (!req.file) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           'Face image is required'
+
+      });
+
+    }
+
+    const failedAttempts =
+      await getFailedAttempts(
+        identityNumber
+      );
+
+    if (failedAttempts >= 5) {
+
+      return res.status(429).json({
+
+        success: false,
+
+        message:
+          'Too many failed attempts. Try again later.'
+
       });
 
     }
 
     const user =
       await prisma.user.findFirst({
+
         where: {
+
           identityNumber,
           isActive: true
+
         }
+
       });
 
     if (!user) {
 
-      return res.status(404).json({
+      await createAttemptLog({
+
+        identityNumber,
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers['user-agent'],
+
         success: false,
+
+        reason:
+          'USER_NOT_FOUND'
+
+      });
+
+      return res.status(404).json({
+
+        success: false,
+
         message:
           'User not found'
+
       });
 
     }
 
-    const now = new Date();
+    const now =
+      new Date();
 
     const activeSession =
       await prisma.attendanceSession.findFirst({
+
         where: {
+
           isActive: true,
 
           startTime: {
@@ -163,62 +329,193 @@ const checkInAttendance = async (
           endTime: {
             gte: now
           }
+
         }
+
       });
 
     if (!activeSession) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           'Attendance session expired'
+
+      });
+
+    }
+
+    // COOLDOWN
+    const cooldown =
+      await checkCooldown(
+
+        user.id,
+        activeSession.id
+
+      );
+
+    if (cooldown) {
+
+      return res.status(429).json({
+
+        success: false,
+
+        message:
+          'Please wait before next attendance attempt'
+
       });
 
     }
 
     const existingAttendance =
       await prisma.attendance.findFirst({
+
         where: {
-          userId: user.id,
+
+          userId:
+            user.id,
 
           attendanceSessionId:
             activeSession.id
+
         }
+
       });
 
     if (existingAttendance) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           'Attendance already exists'
+
       });
 
     }
 
+    // LIVENESS VALIDATION
     if (
+
       smileVerified !== 'true' ||
+
       blinkVerified !== 'true' ||
+
       livenessVerified !== 'true' ||
+
       spoofDetected === 'true'
+
     ) {
 
-      return res.status(400).json({
+      await createAttemptLog({
+
+        identityNumber,
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers['user-agent'],
+
         success: false,
+
+        reason:
+          'LIVENESS_FAILED'
+
+      });
+
+      await createAuditTrail({
+
+      actorRole:
+        'USER',
+
+      actorId:
+        user.id,
+
+      action:
+        'LIVENESS_FAILED',
+
+      entity:
+        'Attendance',
+
+      description:
+        `${user.fullName} failed liveness verification`,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent']
+
+    });
+
+      const io =
+        getIO();
+
+      io.to('admins').emit(
+
+        'spoof:alert',
+
+        {
+
+          user: {
+
+            fullName:
+              user.fullName,
+
+            identityNumber:
+              user.identityNumber,
+
+            division:
+              user.division
+
+          },
+
+          detection: {
+
+            spoofDetected:
+              spoofDetected === 'true',
+
+            smileVerified:
+              smileVerified === 'true',
+
+            blinkVerified:
+              blinkVerified === 'true',
+
+            livenessVerified:
+              livenessVerified === 'true'
+
+          },
+
+          createdAt:
+            new Date()
+
+        }
+
+      );
+
+      return res.status(400).json({
+
+        success: false,
+
         message:
           'Liveness verification failed'
+
       });
 
     }
 
-    // REALTIME FACE IMAGE
+    // IMAGE PATH
     const uploadedImagePath =
       path.join(
         process.cwd(),
         req.file.path
       );
 
-    // EXTRACT REALTIME DESCRIPTOR
+    // EXTRACT DESCRIPTOR
     const realtimeDescriptor =
       await extractFaceDescriptor(
         uploadedImagePath
@@ -226,10 +523,55 @@ const checkInAttendance = async (
 
     if (!realtimeDescriptor) {
 
-      return res.status(400).json({
+      await createAttemptLog({
+
+        identityNumber,
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers['user-agent'],
+
         success: false,
+
+        reason:
+          'FACE_NOT_DETECTED'
+
+      });
+
+      await createAuditTrail({
+
+      actorRole:
+        'USER',
+
+      actorId:
+        user.id,
+
+      action:
+        'FACE_NOT_DETECTED',
+
+      entity:
+        'Attendance',
+
+      description:
+        `${user.fullName} face was not detected`,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent']
+
+    });
+
+      return res.status(400).json({
+
+        success: false,
+
         message:
           'Face not detected'
+
       });
 
     }
@@ -240,40 +582,92 @@ const checkInAttendance = async (
         user.faceDescriptor
       );
 
-    // AI FACE MATCHING
+    // FACE MATCHING
     const matchResult =
       compareFaceDescriptors(
+
         realtimeDescriptor,
         databaseDescriptor
+
       );
 
     if (!matchResult.isMatch) {
 
-      return res.status(401).json({
+      await createAttemptLog({
+
+        identityNumber,
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers['user-agent'],
+
         success: false,
+
+        reason:
+          'FACE_MISMATCH'
+
+      });
+
+      await createAuditTrail({
+
+      actorRole:
+        'USER',
+
+      actorId:
+        user.id,
+
+      action:
+        'FACE_MISMATCH',
+
+      entity:
+        'Attendance',
+
+      description:
+        `${user.fullName} failed face verification`,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent']
+
+    });
+
+      return res.status(401).json({
+
+        success: false,
+
         message:
           'Face does not match',
 
         distance:
           matchResult.distance
+
       });
 
     }
 
-    // AI CONFIDENCE
+    // CONFIDENCE
     const confidenceScore =
       Number(
+
         (
           1 -
           matchResult.distance
         ).toFixed(2)
+
       );
 
+    // CREATE ATTENDANCE
     const attendance =
       await prisma.attendance.create({
+
         data: {
 
-          userId: user.id,
+          userId:
+            user.id,
 
           attendanceSessionId:
             activeSession.id,
@@ -289,60 +683,166 @@ const checkInAttendance = async (
           spoofDetected: false,
 
           status: 'HADIR'
+
         }
+
       });
 
+      await createAuditTrail({
+
+      actorRole:
+        'USER',
+
+      actorId:
+        user.id,
+
+      action:
+        'ATTENDANCE_CHECKIN',
+
+      entity:
+        'Attendance',
+
+      entityId:
+        attendance.id,
+
+      description:
+        `${user.fullName} successfully checked in`,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent']
+
+    });
+
+    // SUCCESS ATTEMPT LOG
+    await createAttemptLog({
+
+      identityNumber,
+
+      ipAddress:
+        req.ip,
+
+      userAgent:
+        req.headers['user-agent'],
+
+      success: true,
+
+      reason:
+        'ATTENDANCE_SUCCESS'
+
+    });
+
+    // TOTAL ATTENDANCE
     const totalAttendance =
       await prisma.attendance.count({
+
         where: {
+
           attendanceSessionId:
             activeSession.id,
 
           status: 'HADIR'
+
         }
+
       });
 
-    const io = getIO();
+    const io =
+      getIO();
 
-    io.emit('attendance:new', {
+    // REALTIME ATTENDANCE
+    io.to('admins').emit(
 
-      user: {
-        fullName:
-          user.fullName,
+      'attendance:new',
 
-        identityNumber:
-          user.identityNumber,
+      {
 
-        division:
-          user.division
-      },
+        user: {
 
-      attendance: {
-        status: 'HADIR',
+          fullName:
+            user.fullName,
 
-        confidenceScore,
+          identityNumber:
+            user.identityNumber,
 
-        createdAt:
-          attendance.createdAt
-      },
+          division:
+            user.division
 
-      statistics: {
-        totalAttendance
+        },
+
+        attendance: {
+
+          status: 'HADIR',
+
+          confidenceScore,
+
+          createdAt:
+            attendance.createdAt
+
+        },
+
+        statistics: {
+
+          totalAttendance
+
+        }
+
       }
 
-    });
+    );
+
+    // DASHBOARD UPDATE
+    io.to('dashboard').emit(
+
+      'dashboard:update',
+
+      {
+
+        latestAttendance: {
+
+          fullName:
+            user.fullName,
+
+          identityNumber:
+            user.identityNumber,
+
+          division:
+            user.division,
+
+          status: 'HADIR',
+
+          confidenceScore
+
+        },
+
+        statistics: {
+
+          totalAttendance
+
+        }
+
+      }
+
+    );
 
     return res.status(201).json({
+
       success: true,
+
       message:
         'AI attendance successful',
 
       data: {
+
         confidenceScore,
 
         distance:
           matchResult.distance
+
       }
+
     });
 
   } catch (error) {
@@ -350,24 +850,33 @@ const checkInAttendance = async (
     console.error(error);
 
     return res.status(500).json({
+
       success: false,
+
       message:
         'Internal server error'
+
     });
 
   }
+
 };
 
+
+// HISTORY
 const getAttendanceHistory =
   async (req, res) => {
+
     try {
 
       const {
+
         year,
         month,
         date,
         division,
         status
+
       } = req.query;
 
       const filters = {};
@@ -400,8 +909,10 @@ const getAttendanceHistory =
         );
 
         filters.createdAt = {
+
           gte: startDate,
           lte: endDate
+
         };
 
       }
@@ -423,29 +934,38 @@ const getAttendanceHistory =
           );
 
         filters.createdAt = {
+
           gte: startMonth,
           lte: endMonth
+
         };
 
       }
 
       const attendances =
         await prisma.attendance.findMany({
+
           where: filters,
 
           include: {
+
             user: true,
             attendanceSession: true
+
           },
 
           orderBy: {
             createdAt: 'desc'
           }
+
         });
 
       return res.status(200).json({
+
         success: true,
+
         data: attendances
+
       });
 
     } catch (error) {
@@ -453,16 +973,23 @@ const getAttendanceHistory =
       console.error(error);
 
       return res.status(500).json({
+
         success: false,
+
         message:
           'Internal server error'
+
       });
 
     }
-};
 
+  };
+
+
+// UPDATE STATUS
 const updateAttendanceStatus =
   async (req, res) => {
+
     try {
 
       const { id } =
@@ -472,9 +999,11 @@ const updateAttendanceStatus =
         req.body;
 
       const allowedStatuses = [
+
         'IZIN',
         'SAKIT',
         'CUTI'
+
       ];
 
       if (
@@ -484,26 +1013,34 @@ const updateAttendanceStatus =
       ) {
 
         return res.status(400).json({
+
           success: false,
+
           message:
             'Invalid status'
+
         });
 
       }
 
       const attendance =
         await prisma.attendance.findUnique({
+
           where: {
             id: Number(id)
           }
+
         });
 
       if (!attendance) {
 
         return res.status(404).json({
+
           success: false,
+
           message:
             'Attendance not found'
+
         });
 
       }
@@ -514,15 +1051,19 @@ const updateAttendanceStatus =
       ) {
 
         return res.status(400).json({
+
           success: false,
+
           message:
             'Only ABSEN can be updated'
+
         });
 
       }
 
       const updatedAttendance =
         await prisma.attendance.update({
+
           where: {
             id: Number(id)
           },
@@ -530,11 +1071,16 @@ const updateAttendanceStatus =
           data: {
             status
           }
+
         });
 
       return res.status(200).json({
+
         success: true,
-        data: updatedAttendance
+
+        data:
+          updatedAttendance
+
       });
 
     } catch (error) {
@@ -542,17 +1088,24 @@ const updateAttendanceStatus =
       console.error(error);
 
       return res.status(500).json({
+
         success: false,
+
         message:
           'Internal server error'
+
       });
 
     }
-};
+
+  };
+
 
 module.exports = {
+
   verifyUserAttendance,
   checkInAttendance,
   getAttendanceHistory,
   updateAttendanceStatus
+
 }; 
