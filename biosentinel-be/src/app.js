@@ -10,6 +10,7 @@ const userRoutes = require('./routes/userRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
 const attendanceRoutes = require('./routes/attendanceRoutes');
 const attendanceAutoAbsent = require('./cron/attendanceAutoAbsent');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 const app = express();
 attendanceAutoAbsent();
@@ -29,6 +30,9 @@ app.use('/api/user', userRoutes);
 // Attedance
 app.use('/api/session', sessionRoutes);
 app.use('/api/attendance', attendanceRoutes);
+
+// Super Admin
+app.use('/api/super-admin', superAdminRoutes);
 
 app.get('/', (req, res) => {
   return res.json({
