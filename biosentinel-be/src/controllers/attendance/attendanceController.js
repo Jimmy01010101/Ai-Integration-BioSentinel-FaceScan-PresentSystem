@@ -1,32 +1,51 @@
-const prisma = require('../../config/prisma');
+const prisma =
+  require('../../config/prisma');
+
+const path =
+  require('path');
 
 const { getIO } =
   require('../../socket/socket');
 
-const verifyUserAttendance = async (req, res) => {
+const {
+  extractFaceDescriptor,
+  compareFaceDescriptors
+} = require('../../ai/faceMatcher');
+
+const verifyUserAttendance = async (
+  req,
+  res
+) => {
   try {
 
-    const { identityNumber } = req.body;
+    const { identityNumber } =
+      req.body;
 
     if (!identityNumber) {
+
       return res.status(400).json({
         success: false,
-        message: 'Identity number is required'
+        message:
+          'Identity number is required'
       });
+
     }
 
-    const user = await prisma.user.findFirst({
-      where: {
-        identityNumber,
-        isActive: true
-      }
-    });
+    const user =
+      await prisma.user.findFirst({
+        where: {
+          identityNumber,
+          isActive: true
+        }
+      });
 
     if (!user) {
+
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
+
     }
 
     const now = new Date();
@@ -35,9 +54,11 @@ const verifyUserAttendance = async (req, res) => {
       await prisma.attendanceSession.findFirst({
         where: {
           isActive: true,
+
           startTime: {
             lte: now
           },
+
           endTime: {
             gte: now
           }
@@ -45,24 +66,31 @@ const verifyUserAttendance = async (req, res) => {
       });
 
     if (!activeSession) {
+
       return res.status(400).json({
         success: false,
-        message: 'Attendance session is not active'
+        message:
+          'Attendance session is not active'
       });
+
     }
 
     return res.status(200).json({
       success: true,
       message: 'User verified',
+
       data: {
         user: {
           id: user.id,
           fullName: user.fullName,
-          identityNumber: user.identityNumber,
+          identityNumber:
+            user.identityNumber,
           division: user.division,
           faceImage: user.faceImage
         },
-        attendanceSession: activeSession
+
+        attendanceSession:
+          activeSession
       }
     });
 
@@ -72,36 +100,53 @@ const verifyUserAttendance = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message:
+        'Internal server error'
     });
 
   }
 };
 
-const checkInAttendance = async (req, res) => {
+const checkInAttendance = async (
+  req,
+  res
+) => {
   try {
 
     const {
       identityNumber,
-      confidenceScore,
       smileVerified,
       blinkVerified,
       livenessVerified,
       spoofDetected
     } = req.body;
 
-    const user = await prisma.user.findFirst({
-      where: {
-        identityNumber,
-        isActive: true
-      }
-    });
+    if (!req.file) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          'Face image is required'
+      });
+
+    }
+
+    const user =
+      await prisma.user.findFirst({
+        where: {
+          identityNumber,
+          isActive: true
+        }
+      });
 
     if (!user) {
+
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message:
+          'User not found'
       });
+
     }
 
     const now = new Date();
@@ -110,9 +155,11 @@ const checkInAttendance = async (req, res) => {
       await prisma.attendanceSession.findFirst({
         where: {
           isActive: true,
+
           startTime: {
             lte: now
           },
+
           endTime: {
             gte: now
           }
@@ -120,48 +167,127 @@ const checkInAttendance = async (req, res) => {
       });
 
     if (!activeSession) {
+
       return res.status(400).json({
         success: false,
-        message: 'Attendance session expired'
+        message:
+          'Attendance session expired'
       });
+
     }
 
     const existingAttendance =
       await prisma.attendance.findFirst({
         where: {
           userId: user.id,
-          attendanceSessionId: activeSession.id
+
+          attendanceSessionId:
+            activeSession.id
         }
       });
 
     if (existingAttendance) {
+
       return res.status(400).json({
         success: false,
-        message: 'Attendance already exists'
+        message:
+          'Attendance already exists'
       });
+
     }
 
     if (
-      !smileVerified ||
-      !livenessVerified ||
-      spoofDetected
+      smileVerified !== 'true' ||
+      blinkVerified !== 'true' ||
+      livenessVerified !== 'true' ||
+      spoofDetected === 'true'
     ) {
+
       return res.status(400).json({
         success: false,
-        message: 'Liveness verification failed'
+        message:
+          'Liveness verification failed'
       });
+
     }
+
+    // REALTIME FACE IMAGE
+    const uploadedImagePath =
+      path.join(
+        process.cwd(),
+        req.file.path
+      );
+
+    // EXTRACT REALTIME DESCRIPTOR
+    const realtimeDescriptor =
+      await extractFaceDescriptor(
+        uploadedImagePath
+      );
+
+    if (!realtimeDescriptor) {
+
+      return res.status(400).json({
+        success: false,
+        message:
+          'Face not detected'
+      });
+
+    }
+
+    // DATABASE DESCRIPTOR
+    const databaseDescriptor =
+      JSON.parse(
+        user.faceDescriptor
+      );
+
+    // AI FACE MATCHING
+    const matchResult =
+      compareFaceDescriptors(
+        realtimeDescriptor,
+        databaseDescriptor
+      );
+
+    if (!matchResult.isMatch) {
+
+      return res.status(401).json({
+        success: false,
+        message:
+          'Face does not match',
+
+        distance:
+          matchResult.distance
+      });
+
+    }
+
+    // AI CONFIDENCE
+    const confidenceScore =
+      Number(
+        (
+          1 -
+          matchResult.distance
+        ).toFixed(2)
+      );
 
     const attendance =
       await prisma.attendance.create({
         data: {
+
           userId: user.id,
-          attendanceSessionId: activeSession.id,
+
+          attendanceSessionId:
+            activeSession.id,
+
           confidenceScore,
-          smileVerified,
-          blinkVerified,
-          livenessVerified,
-          spoofDetected,
+
+          smileVerified: true,
+
+          blinkVerified: true,
+
+          livenessVerified: true,
+
+          spoofDetected: false,
+
           status: 'HADIR'
         }
       });
@@ -169,7 +295,9 @@ const checkInAttendance = async (req, res) => {
     const totalAttendance =
       await prisma.attendance.count({
         where: {
-          attendanceSessionId: activeSession.id,
+          attendanceSessionId:
+            activeSession.id,
+
           status: 'HADIR'
         }
       });
@@ -177,24 +305,44 @@ const checkInAttendance = async (req, res) => {
     const io = getIO();
 
     io.emit('attendance:new', {
+
       user: {
-        fullName: user.fullName,
-        identityNumber: user.identityNumber,
-        division: user.division
+        fullName:
+          user.fullName,
+
+        identityNumber:
+          user.identityNumber,
+
+        division:
+          user.division
       },
+
       attendance: {
         status: 'HADIR',
-        createdAt: attendance.createdAt
+
+        confidenceScore,
+
+        createdAt:
+          attendance.createdAt
       },
+
       statistics: {
         totalAttendance
       }
+
     });
 
     return res.status(201).json({
       success: true,
-      message: 'Attendance successful',
-      data: attendance
+      message:
+        'AI attendance successful',
+
+      data: {
+        confidenceScore,
+
+        distance:
+          matchResult.distance
+      }
     });
 
   } catch (error) {
@@ -203,167 +351,203 @@ const checkInAttendance = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message:
+        'Internal server error'
     });
 
   }
 };
 
-const getAttendanceHistory = async (req, res) => {
-  try {
+const getAttendanceHistory =
+  async (req, res) => {
+    try {
 
-    const {
-      year,
-      month,
-      date,
-      division,
-      status
-    } = req.query;
+      const {
+        year,
+        month,
+        date,
+        division,
+        status
+      } = req.query;
 
-    const filters = {};
+      const filters = {};
 
-    if (status) {
-      filters.status = status;
-    }
+      if (status) {
+        filters.status = status;
+      }
 
-    if (division) {
-      filters.user = {
-        division
-      };
-    }
+      if (division) {
 
-    if (date) {
+        filters.user = {
+          division
+        };
 
-      const startDate =
-        new Date(date);
+      }
 
-      const endDate =
-        new Date(date);
+      if (date) {
 
-      endDate.setHours(
-        23,
-        59,
-        59,
-        999
-      );
+        const startDate =
+          new Date(date);
 
-      filters.createdAt = {
-        gte: startDate,
-        lte: endDate
-      };
+        const endDate =
+          new Date(date);
 
-    }
+        endDate.setHours(
+          23,
+          59,
+          59,
+          999
+        );
 
-    if (month && year) {
+        filters.createdAt = {
+          gte: startDate,
+          lte: endDate
+        };
 
-      const startMonth =
-        new Date(year, month - 1, 1);
+      }
 
-      const endMonth =
-        new Date(year, month, 0);
+      if (month && year) {
 
-      filters.createdAt = {
-        gte: startMonth,
-        lte: endMonth
-      };
+        const startMonth =
+          new Date(
+            year,
+            month - 1,
+            1
+          );
 
-    }
+        const endMonth =
+          new Date(
+            year,
+            month,
+            0
+          );
 
-    const attendances =
-      await prisma.attendance.findMany({
-        where: filters,
-        include: {
-          user: true,
-          attendanceSession: true
-        },
-        orderBy: {
-          createdAt: 'desc'
-        }
+        filters.createdAt = {
+          gte: startMonth,
+          lte: endMonth
+        };
+
+      }
+
+      const attendances =
+        await prisma.attendance.findMany({
+          where: filters,
+
+          include: {
+            user: true,
+            attendanceSession: true
+          },
+
+          orderBy: {
+            createdAt: 'desc'
+          }
+        });
+
+      return res.status(200).json({
+        success: true,
+        data: attendances
       });
 
-    return res.status(200).json({
-      success: true,
-      data: attendances
-    });
+    } catch (error) {
 
-  } catch (error) {
+      console.error(error);
 
-    console.error(error);
+      return res.status(500).json({
+        success: false,
+        message:
+          'Internal server error'
+      });
 
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-
-  }
+    }
 };
 
-const updateAttendanceStatus = async (req, res) => {
-  try {
+const updateAttendanceStatus =
+  async (req, res) => {
+    try {
 
-    const { id } = req.params;
+      const { id } =
+        req.params;
 
-    const { status } = req.body;
+      const { status } =
+        req.body;
 
-    const allowedStatuses = [
-      'IZIN',
-      'SAKIT',
-      'CUTI'
-    ];
+      const allowedStatuses = [
+        'IZIN',
+        'SAKIT',
+        'CUTI'
+      ];
 
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid status'
-      });
-    }
-
-    const attendance =
-      await prisma.attendance.findUnique({
-        where: {
-          id: Number(id)
-        }
-      });
-
-    if (!attendance) {
-      return res.status(404).json({
-        success: false,
-        message: 'Attendance not found'
-      });
-    }
-
-    if (attendance.status !== 'ABSEN') {
-      return res.status(400).json({
-        success: false,
-        message: 'Only ABSEN can be updated'
-      });
-    }
-
-    const updatedAttendance =
-      await prisma.attendance.update({
-        where: {
-          id: Number(id)
-        },
-        data: {
+      if (
+        !allowedStatuses.includes(
           status
-        }
+        )
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            'Invalid status'
+        });
+
+      }
+
+      const attendance =
+        await prisma.attendance.findUnique({
+          where: {
+            id: Number(id)
+          }
+        });
+
+      if (!attendance) {
+
+        return res.status(404).json({
+          success: false,
+          message:
+            'Attendance not found'
+        });
+
+      }
+
+      if (
+        attendance.status !==
+        'ABSEN'
+      ) {
+
+        return res.status(400).json({
+          success: false,
+          message:
+            'Only ABSEN can be updated'
+        });
+
+      }
+
+      const updatedAttendance =
+        await prisma.attendance.update({
+          where: {
+            id: Number(id)
+          },
+
+          data: {
+            status
+          }
+        });
+
+      return res.status(200).json({
+        success: true,
+        data: updatedAttendance
       });
 
-    return res.status(200).json({
-      success: true,
-      data: updatedAttendance
-    });
+    } catch (error) {
 
-  } catch (error) {
+      console.error(error);
 
-    console.error(error);
+      return res.status(500).json({
+        success: false,
+        message:
+          'Internal server error'
+      });
 
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    });
-
-  }
+    }
 };
 
 module.exports = {

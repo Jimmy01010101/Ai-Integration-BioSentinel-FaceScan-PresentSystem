@@ -1,12 +1,17 @@
-const express = require('express');
+const express =
+  require('express');
 
-const router = express.Router();
+const router =
+  express.Router();
 
 const authMiddleware =
   require('../middleware/authMiddleware');
 
 const roleMiddleware =
   require('../middleware/roleMiddleware');
+
+const upload =
+  require('../middleware/uploadFace');
 
 const {
   verifyUserAttendance,
@@ -24,20 +29,36 @@ router.post(
 
 router.post(
   '/check-in',
+
+  upload.single(
+    'faceImage'
+  ),
+
   checkInAttendance
 );
 
 router.get(
   '/history',
+
   authMiddleware,
-  roleMiddleware('SUPER_ADMIN', 'ADMIN'),
+
+  roleMiddleware(
+    'SUPER_ADMIN',
+    'ADMIN'
+  ),
+
   getAttendanceHistory
 );
 
 router.patch(
   '/:id/status',
+
   authMiddleware,
-  roleMiddleware('ADMIN'),
+
+  roleMiddleware(
+    'ADMIN'
+  ),
+
   updateAttendanceStatus
 );
 
