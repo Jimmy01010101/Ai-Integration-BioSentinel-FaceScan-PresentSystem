@@ -12,7 +12,8 @@ import {
   ScanFace,
   Activity,
   ShieldCheck,
-  BarChart3
+  BarChart3,
+  CalendarClock 
 } from 'lucide-react';
 
 
@@ -43,7 +44,11 @@ function DashboardLayout({
       icon: Users,
       path: '/super-admin/users'
     },
-
+    {
+      title: 'Attendance Session',
+      icon: CalendarClock,
+      path: '/super-admin/sessions'
+    },
     {
       title: 'Admin Management',
       icon: UserCog,

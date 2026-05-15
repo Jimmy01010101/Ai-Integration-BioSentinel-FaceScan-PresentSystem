@@ -48,6 +48,15 @@ export const getUserDetail = async (id) => {
   return response.data;
 };
 
+export const createUser = async (payload) => {
+  const response = await api.post(
+    '/user/create',
+    payload
+  );
+
+  return response.data;
+};
+
 export const updateUser = async (
   id,
   payload
@@ -77,6 +86,19 @@ export const deleteUser = async (id) => {
   return response.data;
 };
 
+export const reEnrollFace = async (
+  id,
+  payload
+) => {
+
+  const response = await api.post(
+    `/super-admin/user/${id}/re-enroll-face`,
+    payload
+  );
+
+  return response.data;
+};
+
 export const getAllAdmins = async () => {
   const response = await api.get(
     '/super-admin/admin/list'
@@ -100,3 +122,26 @@ export const getAuditLogs = async () => {
 
   return response.data;
 }; 
+
+export const getActiveSessionData =
+async () => {
+
+  const response =
+    await api.get(
+      "/session/active"
+    );
+
+  return response.data;
+};
+
+export const createAttendanceSession =
+async (payload) => {
+
+  const response =
+    await api.post(
+      "/session/create",
+      payload
+    );
+
+  return response.data;
+};

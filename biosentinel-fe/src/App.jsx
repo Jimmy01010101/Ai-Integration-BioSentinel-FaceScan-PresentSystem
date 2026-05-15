@@ -20,6 +20,9 @@ import UserAttendancePage from './pages/user/UserAttendancePage';
 
 import UserManagementPage from './pages/superadmin/UserManagementPage';
 
+// SESSION
+import AttendanceSessionManagement from './pages/superadmin/AttendanceSessionManagement';
+
 
 // LAYOUTS
 import DashboardLayout from './layouts/DashboardLayout';
@@ -113,6 +116,25 @@ function App() {
 
         />
 
+        <Route
+
+          path="/super-admin/sessions"
+
+          element={
+
+            <ProtectedRoute>
+
+              <DashboardLayout role="SUPER_ADMIN">
+
+                <AttendanceSessionManagement />
+
+              </DashboardLayout>
+
+            </ProtectedRoute>
+
+          }
+
+        />
 
         {/* =========================
             ADMIN
