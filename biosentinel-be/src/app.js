@@ -18,7 +18,11 @@ const app = express();
 attendanceAutoAbsent();
 
 app.use(cors());
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false
+  })
+); 
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
