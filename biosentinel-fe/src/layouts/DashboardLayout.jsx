@@ -9,20 +9,28 @@ import {
   UserCog,
   ClipboardList,
   ShieldAlert,
-  ScanFace
+  ScanFace,
+  Activity,
+  ShieldCheck,
+  BarChart3
 } from 'lucide-react';
 
 
 function DashboardLayout({
-  children
+
+  children,
+  role
+
 }) {
 
   const location =
     useLocation();
 
 
-  // MENU
-  const menuItems = [
+  // =========================
+  // SUPER ADMIN MENU
+  // =========================
+  const superAdminMenus = [
 
     {
       title: 'Dashboard',
@@ -31,15 +39,21 @@ function DashboardLayout({
     },
 
     {
-      title: 'Users',
+      title: 'User Management',
       icon: Users,
       path: '/super-admin/users'
     },
 
     {
-      title: 'Admins',
+      title: 'Admin Management',
       icon: UserCog,
       path: '/super-admin/admins'
+    },
+
+    {
+      title: 'Analytics',
+      icon: BarChart3,
+      path: '/super-admin/analytics'
     },
 
     {
@@ -51,12 +65,50 @@ function DashboardLayout({
   ];
 
 
+  // =========================
+  // ADMIN MENU
+  // =========================
+  const adminMenus = [
+
+    {
+      title: 'Dashboard',
+      icon: LayoutDashboard,
+      path: '/admin'
+    },
+
+    {
+      title: 'Attendance',
+      icon: Activity,
+      path: '/admin/attendance'
+    },
+
+    {
+      title: 'Security',
+      icon: ShieldCheck,
+      path: '/admin/security'
+    }
+
+  ];
+
+
+  // ROLE MENU
+  const menuItems =
+
+    role === 'SUPER_ADMIN'
+
+      ? superAdminMenus
+
+      : adminMenus;
+
+
   return (
 
     <div className="min-h-screen bg-[#020617] text-white flex">
 
-      {/* SIDEBAR */}
-      <aside className="w-[230px] bg-[#081028] border-r border-red-950 p-6 hidden lg:flex flex-col">
+      {/* =========================
+          SIDEBAR
+      ========================= */}
+      <aside className="w-[260px] bg-[#081028] border-r border-red-950 p-6 hidden lg:flex flex-col">
 
         {/* LOGO */}
         <div className="mb-12">
@@ -65,11 +117,17 @@ function DashboardLayout({
             BioSentinel
           </h1>
 
+          <p className="text-red-100/50 mt-2 text-sm">
+
+            AI Governance System
+
+          </p>
+
         </div>
 
 
         {/* MENU */}
-        <nav className="space-y-2">
+        <nav className="space-y-3">
 
           {
 
@@ -93,14 +151,14 @@ function DashboardLayout({
                     className={`
 
                       flex items-center gap-3
-                      px-4 py-3 rounded-2xl
-                      transition-all
+                      px-4 py-4 rounded-2xl
+                      transition-all duration-300
 
                       ${
 
                         active
 
-                          ? 'bg-red-700 text-white'
+                          ? 'bg-red-700 text-white shadow-lg shadow-red-900/30'
 
                           : 'hover:bg-[#101b38] text-red-100/70'
 
@@ -170,7 +228,9 @@ function DashboardLayout({
       </aside>
 
 
-      {/* MAIN */}
+      {/* =========================
+          MAIN CONTENT
+      ========================= */}
       <main className="flex-1 overflow-y-auto p-8">
 
         {children}
@@ -183,4 +243,4 @@ function DashboardLayout({
 
 }
 
-export default DashboardLayout;
+export default DashboardLayout; 

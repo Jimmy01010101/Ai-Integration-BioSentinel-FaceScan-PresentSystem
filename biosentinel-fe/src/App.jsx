@@ -15,7 +15,10 @@ import LoginPage from './pages/LoginPage';
 
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
 import AdminDashboard from './pages/admin/AdminDashboard';
+
 import UserAttendancePage from './pages/user/UserAttendancePage';
+
+import UserManagementPage from './pages/superadmin/UserManagementPage';
 
 
 // LAYOUTS
@@ -63,7 +66,11 @@ function App() {
         />
 
 
-        {/* SUPER ADMIN */}
+        {/* =========================
+            SUPER ADMIN
+        ========================= */}
+
+        {/* DASHBOARD */}
         <Route
 
           path="/super-admin"
@@ -72,7 +79,7 @@ function App() {
 
             <ProtectedRoute>
 
-              <DashboardLayout>
+              <DashboardLayout role="SUPER_ADMIN">
 
                 <SuperAdminDashboard />
 
@@ -85,7 +92,32 @@ function App() {
         />
 
 
-        {/* ADMIN */}
+        {/* USER MANAGEMENT */}
+        <Route
+
+          path="/super-admin/users"
+
+          element={
+
+            <ProtectedRoute>
+
+              <DashboardLayout role="SUPER_ADMIN">
+
+                <UserManagementPage />
+
+              </DashboardLayout>
+
+            </ProtectedRoute>
+
+          }
+
+        />
+
+
+        {/* =========================
+            ADMIN
+        ========================= */}
+
         <Route
 
           path="/admin"
@@ -94,7 +126,7 @@ function App() {
 
             <ProtectedRoute>
 
-              <DashboardLayout>
+              <DashboardLayout role="ADMIN">
 
                 <AdminDashboard />
 

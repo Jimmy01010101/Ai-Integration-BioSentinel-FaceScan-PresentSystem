@@ -1,3 +1,5 @@
+import socket from '../../services/socket';
+
 import {
   Users,
   Shield,
@@ -19,13 +21,11 @@ import {
 import toast from 'react-hot-toast';
 
 import {
-
   getDashboardStats,
-  getAttendanceToday,
+  getTodayAttendance,
   getActiveSession,
   getRealtimeFeed
-
-} from '../../services/superAdminService';
+} from '../../services/superAdminService'; 
 
 
 function SuperAdminDashboard() {
@@ -80,7 +80,7 @@ const loadDashboard =
       try {
 
         const todayData =
-          await getAttendanceToday();
+          await getTodayAttendance();
 
         setTodayAttendance(
           todayData.data
@@ -161,21 +161,96 @@ const loadDashboard =
   };
 
   // INIT
-  useEffect(() => {
+    useEffect(() => {
 
-    loadDashboard();
+      loadDashboard();
 
-    const interval =
-      setInterval(() => {
+      // SOCKET JOIN
+      socket.emit(
+        'dashboard:join'
+      );
 
-        loadDashboard();
+      // HANDLERS
+      const attendanceHandler =
+        () => {
 
-      }, 10000);
+          toast.success(
+            'New attendance detected'
+          );
 
-    return () =>
-      clearInterval(interval);
+          loadDashboard();
 
-  }, []);
+        };
+
+      const sessionHandler =
+        () => {
+
+          toast(
+            'Session updated'
+          );
+
+          loadDashboard();
+
+        };
+
+      const spoofHandler =
+        () => {
+
+          toast.error(
+            'Spoof alert detected'
+          );
+
+          loadDashboard();
+
+        };
+
+      // SOCKET EVENTS
+      socket.on(
+        'attendance:new',
+        attendanceHandler
+      );
+
+      socket.on(
+        'session:update',
+        sessionHandler
+      );
+
+      socket.on(
+        'spoof:alert',
+        spoofHandler
+      );
+
+      // FALLBACK POLLING
+      const interval =
+        setInterval(() => {
+
+          loadDashboard();
+
+        }, 15000);
+
+      // CLEANUP
+      return () => {
+
+        clearInterval(interval);
+
+        socket.off(
+          'attendance:new',
+          attendanceHandler
+        );
+
+        socket.off(
+          'session:update',
+          sessionHandler
+        );
+
+        socket.off(
+          'spoof:alert',
+          spoofHandler
+        );
+
+      };
+
+    }, []);
 
 
   // LOADING
@@ -200,7 +275,6 @@ const loadDashboard =
     );
 
   }
-
 
   return (
 
@@ -462,8 +536,8 @@ const loadDashboard =
                       AI Detection
                     </p>
 
-                    <h2 className="text-2xl font-black">
-                      Stable
+                    <h2 className="text-2xl font-black text-green-400">
+                      Online
                     </h2>
 
                   </div>
@@ -489,8 +563,8 @@ const loadDashboard =
                       Database Health
                     </p>
 
-                    <h2 className="text-2xl font-black">
-                      Healthy
+                    <h2 className="text-2xl font-black text-green-400">
+                      Connected
                     </h2>
 
                   </div>
@@ -617,7 +691,9 @@ const loadDashboard =
 
                 realtimeFeed.length > 0
 
-                  ? realtimeFeed.map(
+                  ? realtimeFeed
+                      .slice(0, 10)
+                      .map(
 
                       (item, index) => (
 
