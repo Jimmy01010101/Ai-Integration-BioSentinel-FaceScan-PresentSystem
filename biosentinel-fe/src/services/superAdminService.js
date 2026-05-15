@@ -1,65 +1,102 @@
 import api from './api';
 
+export const getDashboardStats = async () => {
+  const response = await api.get(
+    '/super-admin/dashboard/stats'
+  );
 
-// DASHBOARD STATS
-export const getDashboardStats =
-  async () => {
+  return response.data;
+};
 
-    const response =
-      await api.get(
+export const getTodayAttendance = async () => {
+  const response = await api.get(
+    '/super-admin/dashboard/today'
+  );
 
-        '/super-admin/dashboard/stats'
+  return response.data;
+};
 
-      );
+export const getActiveSession = async () => {
+  const response = await api.get(
+    '/super-admin/dashboard/session'
+  );
 
-    return response.data;
+  return response.data;
+};
 
-  };
+export const getRealtimeFeed = async () => {
+  const response = await api.get(
+    '/super-admin/dashboard/realtime'
+  );
 
+  return response.data;
+};
 
-// ATTENDANCE TODAY
-export const getAttendanceToday =
-  async () => {
+export const getAllUsers = async () => {
+  const response = await api.get(
+    '/super-admin/user/list'
+  );
 
-    const response =
-      await api.get(
+  return response.data;
+};
 
-        '/super-admin/dashboard/today'
+export const getUserDetail = async (id) => {
+  const response = await api.get(
+    `/super-admin/user/${id}`
+  );
 
-      );
+  return response.data;
+};
 
-    return response.data;
+export const updateUser = async (
+  id,
+  payload
+) => {
 
-  };
+  const response = await api.put(
+    `/super-admin/user/${id}/update`,
+    payload
+  );
 
+  return response.data;
+};
 
-// ACTIVE SESSION
-export const getActiveSession =
-  async () => {
+export const toggleUserStatus = async (id) => {
+  const response = await api.patch(
+    `/super-admin/user/${id}/toggle-status`
+  );
 
-    const response =
-      await api.get(
+  return response.data;
+};
 
-        '/super-admin/dashboard/session'
+export const deleteUser = async (id) => {
+  const response = await api.delete(
+    `/super-admin/user/${id}/delete`
+  );
 
-      );
+  return response.data;
+};
 
-    return response.data;
+export const getAllAdmins = async () => {
+  const response = await api.get(
+    '/super-admin/admin/list'
+  );
 
-  };
+  return response.data;
+};
 
+export const getSecurityLogs = async () => {
+  const response = await api.get(
+    '/super-admin/audit/security-events'
+  );
 
-// REALTIME FEED
-export const getRealtimeFeed =
-  async () => {
+  return response.data;
+};
 
-    const response =
-      await api.get(
+export const getAuditLogs = async () => {
+  const response = await api.get(
+    '/super-admin/audit/logs'
+  );
 
-        '/super-admin/dashboard/realtime'
-
-      );
-
-    return response.data;
-
-  }; 
+  return response.data;
+}; 
