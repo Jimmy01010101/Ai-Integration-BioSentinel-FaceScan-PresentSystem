@@ -11,27 +11,21 @@ import {
 
 // PAGES
 import LandingPage from './pages/LandingPage';
-
 import LoginPage from './pages/LoginPage';
 
-import AttendancePage from './pages/AttendancePage';
-
 import SuperAdminDashboard from './pages/superadmin/SuperAdminDashboard';
-
 import AdminDashboard from './pages/admin/AdminDashboard';
+import UserAttendancePage from './pages/user/UserAttendancePage';
 
 
 // LAYOUTS
-import SuperAdminLayout from './layouts/SuperAdminLayout';
-
-import AdminLayout from './layouts/AdminLayout';
+import DashboardLayout from './layouts/DashboardLayout';
 
 
 // ROUTES
 import ProtectedRoute from './routes/ProtectedRoute';
 
 
-// APP
 function App() {
 
   return (
@@ -46,7 +40,7 @@ function App() {
 
       <Routes>
 
-        {/* LANDING PAGE */}
+        {/* LANDING */}
         <Route
           path="/"
           element={<LandingPage />}
@@ -63,7 +57,9 @@ function App() {
         {/* USER ATTENDANCE */}
         <Route
           path="/attendance"
-          element={<AttendancePage />}
+          element={
+            <UserAttendancePage />
+          }
         />
 
 
@@ -76,22 +72,17 @@ function App() {
 
             <ProtectedRoute>
 
-              <SuperAdminLayout />
+              <DashboardLayout>
+
+                <SuperAdminDashboard />
+
+              </DashboardLayout>
 
             </ProtectedRoute>
 
           }
 
-        >
-
-          <Route
-            index
-            element={
-              <SuperAdminDashboard />
-            }
-          />
-
-        </Route>
+        />
 
 
         {/* ADMIN */}
@@ -103,33 +94,25 @@ function App() {
 
             <ProtectedRoute>
 
-              <AdminLayout />
+              <DashboardLayout>
+
+                <AdminDashboard />
+
+              </DashboardLayout>
 
             </ProtectedRoute>
 
           }
 
-        >
-
-          <Route
-            index
-            element={
-              <AdminDashboard />
-            }
-          />
-
-        </Route>
+        />
 
 
-        {/* FALLBACK */}
+        {/* 404 */}
         <Route
-
           path="*"
-
           element={
             <Navigate to="/" />
           }
-
         />
 
       </Routes>
