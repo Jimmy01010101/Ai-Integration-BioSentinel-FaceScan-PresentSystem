@@ -577,10 +577,31 @@ const checkInAttendance = async (
     }
 
     // DATABASE DESCRIPTOR
-    const databaseDescriptor =
-      JSON.parse(
-        user.faceDescriptor
+    let databaseDescriptor;
+
+    try {
+
+      databaseDescriptor =
+        typeof user.faceDescriptor === "string"
+          ? JSON.parse(user.faceDescriptor)
+          : user.faceDescriptor;
+
+    } catch (error) {
+
+      console.error(
+        "FACE DESCRIPTOR PARSE ERROR:",
+        error
       );
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Invalid face descriptor format"
+
+      });
+    }
 
     // FACE MATCHING
     const matchResult =
