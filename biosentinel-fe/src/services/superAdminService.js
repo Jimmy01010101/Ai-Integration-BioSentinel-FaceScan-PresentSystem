@@ -145,3 +145,14 @@ async (payload) => {
 
   return response.data;
 };
+
+export const getRealtimeAttendance =
+  async () => {
+
+    const response =
+      await api.get(
+        "/attendance/history"
+      );
+
+    return response.data;
+};

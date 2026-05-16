@@ -18,7 +18,8 @@ const {
   verifyUserAttendance,
   checkInAttendance,
   getAttendanceHistory,
-  updateAttendanceStatus
+  updateAttendanceStatus,
+  getRealtimeAttendanceFeed
 } = require(
   '../controllers/attendance/attendanceController'
 );
@@ -61,6 +62,11 @@ router.patch(
   ),
 
   updateAttendanceStatus
+);
+
+router.get(
+  '/realtime-feed',
+  getRealtimeAttendanceFeed
 );
 
 module.exports = router; 

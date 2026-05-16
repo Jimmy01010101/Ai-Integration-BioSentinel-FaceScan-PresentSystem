@@ -26,7 +26,7 @@ function LandingPage() {
           <div>
 
             <h1 className="text-2xl font-black tracking-wide text-red-500">
-              BioSentinel-AI
+              BioSentinel - AI 1.0
             </h1>
 
             <p className="text-xs text-red-200/60 mt-1">
@@ -84,7 +84,7 @@ function LandingPage() {
 
           <p className="text-lg text-red-100/70 leading-relaxed mb-10 max-w-2xl">
 
-            BioSentinel-AI menghadirkan sistem presensi modern berbasis
+            BioSentinel - AI 1.0 menghadirkan sistem presensi modern berbasis
             Artificial Intelligence dengan Face Recognition, Smile Verification,
             Liveness Detection, Realtime Monitoring, dan Enterprise Security.
 

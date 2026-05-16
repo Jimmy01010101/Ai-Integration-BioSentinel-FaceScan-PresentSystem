@@ -1006,6 +1006,85 @@ const getAttendanceHistory =
 
   };
 
+// REALTIME ATTENDANCE FEED
+const getRealtimeAttendanceFeed =
+  async (req, res) => {
+
+    try {
+
+      const realtimeAttendance =
+        await prisma.attendance.findMany({
+
+          include: {
+
+            user: {
+
+              select: {
+
+                id: true,
+                fullName: true,
+                identityNumber: true,
+                division: true
+
+              }
+
+            },
+
+            attendanceSession: {
+
+              select: {
+
+                id: true,
+                title: true,
+                startTime: true,
+                endTime: true
+
+              }
+
+            }
+
+          },
+
+          orderBy: {
+
+            createdAt: 'desc'
+
+          }
+
+        });
+
+      return res.status(200).json({
+
+        success: true,
+
+        total:
+          realtimeAttendance.length,
+
+        data:
+          realtimeAttendance
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        'REALTIME FEED ERROR:',
+        error
+      );
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          'Internal server error'
+
+      });
+
+    }
+
+  };
+
 
 // UPDATE STATUS
 const updateAttendanceStatus =
@@ -1121,12 +1200,12 @@ const updateAttendanceStatus =
 
   };
 
-
 module.exports = {
 
   verifyUserAttendance,
   checkInAttendance,
   getAttendanceHistory,
-  updateAttendanceStatus
+  updateAttendanceStatus,
+  getRealtimeAttendanceFeed
 
 }; 

@@ -47,7 +47,7 @@ app.use('/api/admin', adminReportRoutes);
 app.get('/', (req, res) => {
   return res.json({
     success: true,
-    message: 'BioSentinel-AI Backend Running'
+    message: 'BioSentinel-AI 1.0 Backend Running'
   });
 });
 

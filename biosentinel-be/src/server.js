@@ -19,7 +19,7 @@ initializeSocket(server);
 server.listen(PORT, () => {
 
   console.log(`
-BioSentinel-AI Face Scan Running
+BioSentinel-AI 1.0 Face Scan Running
 PORT: ${PORT}
   `);
 

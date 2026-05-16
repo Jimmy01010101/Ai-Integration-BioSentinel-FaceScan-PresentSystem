@@ -23,6 +23,8 @@ import UserManagementPage from './pages/superadmin/UserManagementPage';
 // SESSION
 import AttendanceSessionManagement from './pages/superadmin/AttendanceSessionManagement';
 
+// ATTENDANCE
+import RealtimeAttendancePage from "./pages/superadmin/RealtimeAttendancePage"; 
 
 // LAYOUTS
 import DashboardLayout from './layouts/DashboardLayout';
@@ -134,6 +136,11 @@ function App() {
 
           }
 
+        />
+
+        <Route
+          path="/super-admin/realtime-attendance"
+          element={<RealtimeAttendancePage />}
         />
 
         {/* =========================

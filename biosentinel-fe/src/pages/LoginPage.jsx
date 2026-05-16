@@ -207,7 +207,7 @@ function LoginPage() {
           </div>
 
           <h1 className="text-4xl font-black text-red-500 mb-2">
-            BioSentinel-AI
+            BioSentinel - AI 1.0
           </h1>
 
           <p className="text-red-100/60 text-sm leading-relaxed">

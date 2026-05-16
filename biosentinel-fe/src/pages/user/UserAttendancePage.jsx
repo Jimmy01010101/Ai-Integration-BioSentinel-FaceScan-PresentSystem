@@ -727,7 +727,7 @@ const captureAttendance = async () => {
       <div className="max-w-7xl mx-auto mb-10">
 
         <h1 className="text-5xl font-black text-red-500 mb-4">
-          BioSentinel-AI
+          BioSentinel - AI 1.0
         </h1>
 
         <p className="text-red-100/60 text-lg">
