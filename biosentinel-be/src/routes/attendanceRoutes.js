@@ -15,20 +15,24 @@ const upload =
   require('../middleware/uploadFace');
 
 const {
+
   verifyUserAttendance,
   checkInAttendance,
   getAttendanceHistory,
   updateAttendanceStatus,
   getRealtimeAttendanceFeed
+
 } = require(
   '../controllers/attendance/attendanceController'
 );
 
+// VERIFY USER
 router.post(
   '/verify-user',
   verifyUserAttendance
 );
 
+// CHECK-IN
 router.post(
   '/check-in',
 
@@ -39,6 +43,21 @@ router.post(
   checkInAttendance
 );
 
+// REALTIME FEED
+router.get(
+  '/realtime-feed',
+
+  authMiddleware,
+
+  roleMiddleware(
+    'SUPER_ADMIN',
+    'ADMIN'
+  ),
+
+  getRealtimeAttendanceFeed
+);
+
+// HISTORY
 router.get(
   '/history',
 
@@ -52,21 +71,18 @@ router.get(
   getAttendanceHistory
 );
 
+// UPDATE STATUS
 router.patch(
   '/:id/status',
 
   authMiddleware,
 
   roleMiddleware(
-    'ADMIN'
+    'ADMIN',
+    'SUPER_ADMIN'
   ),
 
   updateAttendanceStatus
-);
-
-router.get(
-  '/realtime-feed',
-  getRealtimeAttendanceFeed
 );
 
 module.exports = router; 

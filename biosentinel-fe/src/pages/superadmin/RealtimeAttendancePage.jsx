@@ -1,18 +1,20 @@
+import { io } from 'socket.io-client';
+
 import {
   useEffect,
   useState,
-} from "react";
+} from 'react';
 
 import {
   Activity,
   ShieldAlert,
   Smile,
   ScanFace,
-} from "lucide-react";
+} from 'lucide-react';
 
 import {
   getRealtimeAttendance,
-} from "../../services/superAdminService";
+} from '../../services/superAdminService';
 
 const RealtimeAttendancePage =
   () => {
@@ -44,29 +46,89 @@ const RealtimeAttendancePage =
         } finally {
 
           setLoading(false);
+
         }
+
       };
 
     useEffect(() => {
 
       fetchAttendance();
 
-      const interval =
-        setInterval(
-          fetchAttendance,
-          5000
+      const socket =
+        io(
+          import.meta.env
+            .VITE_SOCKET_URL
         );
 
-      return () =>
-        clearInterval(interval);
+      socket.on(
+        'connect',
+
+        () => {
+
+          console.log(
+            'Realtime socket connected'
+          );
+
+        }
+      );
+
+      socket.on(
+        'new-attendance',
+
+        (newAttendance) => {
+
+          setAttendance(
+            (prev) => {
+
+              const exists =
+                prev.find(
+                  item =>
+                    item.id ===
+                    newAttendance.id
+                );
+
+              if (exists)
+                return prev;
+
+              return [
+                newAttendance,
+                ...prev
+              ];
+
+            }
+          );
+
+        }
+      );
+
+      socket.on(
+        'disconnect',
+
+        () => {
+
+          console.log(
+            'Realtime socket disconnected'
+          );
+
+        }
+      );
+
+      return () => {
+
+        socket.off(
+          'new-attendance'
+        );
+
+        socket.disconnect();
+
+      };
 
     }, []);
 
     return (
 
       <div className="min-h-screen bg-[#020617] text-white p-8">
-
-        {/* HEADER */}
 
         <div className="mb-10">
 
@@ -84,24 +146,18 @@ const RealtimeAttendancePage =
 
         </div>
 
-        {/* STATS */}
-
         <div className="grid grid-cols-4 gap-6 mb-10">
 
           <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
 
             <p className="text-gray-400">
-
               Total Attendance
-
             </p>
 
             <div className="flex justify-between items-center mt-3">
 
               <h2 className="text-5xl font-black">
-
                 {attendance.length}
-
               </h2>
 
               <Activity className="text-red-500" />
@@ -113,9 +169,7 @@ const RealtimeAttendancePage =
           <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
 
             <p className="text-gray-400">
-
               AI Verified
-
             </p>
 
             <div className="flex justify-between items-center mt-3">
@@ -140,9 +194,7 @@ const RealtimeAttendancePage =
           <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
 
             <p className="text-gray-400">
-
               Smile Verified
-
             </p>
 
             <div className="flex justify-between items-center mt-3">
@@ -167,9 +219,7 @@ const RealtimeAttendancePage =
           <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
 
             <p className="text-gray-400">
-
               Spoof Alert
-
             </p>
 
             <div className="flex justify-between items-center mt-3">
@@ -192,8 +242,6 @@ const RealtimeAttendancePage =
           </div>
 
         </div>
-
-        {/* TABLE */}
 
         <div className="bg-[#071226] border border-red-900 rounded-3xl overflow-hidden">
 
@@ -242,7 +290,7 @@ const RealtimeAttendancePage =
             <tbody>
 
               {attendance.map(
-                item => (
+                (item) => (
 
                 <tr
                   key={item.id}
@@ -252,8 +300,8 @@ const RealtimeAttendancePage =
                   <td className="p-5 font-bold">
 
                     {
-                      item.user
-                        ?.fullName || "Unknown User"
+                      item.user?.fullName ||
+                      'Unknown User'
                     }
 
                   </td>
@@ -261,50 +309,48 @@ const RealtimeAttendancePage =
                   <td>
 
                     {
-                      item.attendanceSession
-                        ?.title || "No Session" 
+                      item.attendanceSession?.title ||
+                      'No Session'
                     }
 
                   </td>
 
                   <td className="text-cyan-400 font-bold">
 
-                    {
-                      item.confidenceScore
-                    }
+                    {item.confidenceScore}
 
                   </td>
 
                   <td>
 
                     {item.smileVerified
-                      ? "✅"
-                      : "❌"}
+                      ? '✅'
+                      : '❌'}
 
                   </td>
 
                   <td>
 
                     {item.livenessVerified
-                      ? "✅"
-                      : "❌"}
+                      ? '✅'
+                      : '❌'}
 
                   </td>
 
                   <td>
 
                     {item.spoofDetected
-                      ? "🚨"
-                      : "SAFE"}
+                      ? '🚨'
+                      : 'SAFE'}
 
                   </td>
 
                   <td>
 
                     <span className={`px-4 py-2 rounded-full text-sm ${
-                      item.status === "HADIR"
-                        ? "bg-green-500/20 text-green-400"
-                        : "bg-red-500/20 text-red-400"
+                      item.status === 'HADIR'
+                        ? 'bg-green-500/20 text-green-400'
+                        : 'bg-red-500/20 text-red-400'
                     }`}>
 
                       {item.status}
@@ -345,7 +391,9 @@ const RealtimeAttendancePage =
         </div>
 
       </div>
+
     );
+
 };
 
 export default RealtimeAttendancePage; 

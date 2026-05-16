@@ -19,169 +19,380 @@ const {
   ImageData
 } = canvas;
 
+// =====================================================
+// PATCH ENVIRONMENT
+// =====================================================
+
 faceapi.env.monkeyPatch({
   Canvas,
   Image,
   ImageData
 });
 
+// =====================================================
+// GLOBAL MODEL STATE
+// =====================================================
+
 let modelsLoaded = false;
+
+// =====================================================
+// SECURITY CONFIG
+// =====================================================
+
+const FACE_MATCH_THRESHOLD = 0.42;
+
+const MIN_CONFIDENCE = 0.75;
+
+// =====================================================
+// LOAD MODELS
+// =====================================================
 
 const loadModels = async () => {
 
-  if (modelsLoaded) {
-    return;
-  }
+  try {
 
-  const modelPath =
-    path.join(
-      __dirname,
-      '../../models'
+    if (modelsLoaded) {
+      return;
+    }
+
+    const modelPath =
+      path.join(
+        __dirname,
+        '../../models'
+      );
+
+    await faceapi.nets.tinyFaceDetector
+      .loadFromDisk(modelPath);
+
+    await faceapi.nets.faceLandmark68Net
+      .loadFromDisk(modelPath);
+
+    await faceapi.nets.faceRecognitionNet
+      .loadFromDisk(modelPath);
+
+    modelsLoaded = true;
+
+    console.log(
+      'Stable AI models loaded'
     );
 
-  await faceapi.nets.tinyFaceDetector
-    .loadFromDisk(modelPath);
+  } catch (error) {
 
-  await faceapi.nets.faceLandmark68Net
-    .loadFromDisk(modelPath);
+    console.error(
+      'LOAD MODEL ERROR:',
+      error
+    );
 
-  await faceapi.nets.faceRecognitionNet
-    .loadFromDisk(modelPath);
+    throw error;
 
-  modelsLoaded = true;
-
-  console.log(
-    '✅ Stable AI models loaded'
-  );
+  }
 
 };
+
+// =====================================================
+// IMAGE OPTIMIZATION
+// =====================================================
 
 const optimizeImage = async (
   imagePath
 ) => {
 
-  const optimizedPath =
-    imagePath.replace(
-      /\.(jpg|jpeg|png)$/i,
-      '_optimized.jpg'
+  try {
+
+    const optimizedPath =
+      imagePath.replace(
+        /\.(jpg|jpeg|png)$/i,
+        '_optimized.jpg'
+      );
+
+    await sharp(imagePath)
+
+      .resize({
+        width: 320
+      })
+
+      .jpeg({
+        quality: 80
+      })
+
+      .normalize()
+
+      .sharpen()
+
+      .toFile(optimizedPath);
+
+    return optimizedPath;
+
+  } catch (error) {
+
+    console.error(
+      'IMAGE OPTIMIZE ERROR:',
+      error
     );
 
-  await sharp(imagePath)
+    throw error;
 
-    .resize({
-      width: 320
-    })
-
-    .jpeg({
-      quality: 70
-    })
-
-    .toFile(optimizedPath);
-
-  return optimizedPath;
+  }
 
 };
+
+// =====================================================
+// EXTRACT FACE DESCRIPTOR
+// =====================================================
 
 const extractFaceDescriptor =
   async (imagePath) => {
 
-    await loadModels();
+    try {
 
-    const optimizedImagePath =
-      await optimizeImage(
-        imagePath
-      );
+      await loadModels();
 
-    const img =
-      await canvas.loadImage(
-        optimizedImagePath
-      );
+      const optimizedImagePath =
+        await optimizeImage(
+          imagePath
+        );
 
-    const detection =
-      await faceapi
-        .detectSingleFace(
+      const img =
+        await canvas.loadImage(
+          optimizedImagePath
+        );
 
-          img,
+      const detection =
+        await faceapi
+          .detectSingleFace(
 
-          new faceapi.TinyFaceDetectorOptions({
+            img,
 
-            inputSize: 320,
+            new faceapi.TinyFaceDetectorOptions({
 
-            scoreThreshold: 0.5
+              inputSize: 416,
 
-          })
+              scoreThreshold: 0.65
 
+            })
+
+          )
+
+          .withFaceLandmarks()
+
+          .withFaceDescriptor();
+
+      // CLEANUP TEMP FILE
+      if (
+        fs.existsSync(
+          optimizedImagePath
         )
+      ) {
 
-        .withFaceLandmarks()
+        fs.unlinkSync(
+          optimizedImagePath
+        );
 
-        .withFaceDescriptor();
+      }
 
-    // DELETE TEMP IMAGE
-    if (
-      fs.existsSync(
-        optimizedImagePath
-      )
-    ) {
+      // NO FACE
+      if (!detection) {
 
-      fs.unlinkSync(
-        optimizedImagePath
+        console.log(
+          'Face not detected'
+        );
+
+        return null;
+
+      }
+
+      // LOW QUALITY FACE
+      if (
+        detection.detection.score < 0.8
+      ) {
+
+        console.log(
+          'Low quality face'
+        );
+
+        return null;
+
+      }
+
+      return Array.from(
+        detection.descriptor
       );
 
-    }
+    } catch (error) {
 
-    if (!detection) {
+      console.error(
+        'EXTRACT FACE ERROR:',
+        error
+      );
+
       return null;
-    }
 
-    return Array.from(
-      detection.descriptor
-    );
+    }
 
   };
 
+// =====================================================
+// ADVANCED FACE MATCHING
+// =====================================================
+
 const compareFaceDescriptors = (
-  descriptor1,
-  descriptor2
+  realtimeDescriptor,
+  storedDescriptor
 ) => {
 
-  if (
-    descriptor1.length !==
-    descriptor2.length
-  ) {
+  try {
 
-    throw new Error(
-      'Descriptor length mismatch'
+    if (
+      !realtimeDescriptor ||
+      !storedDescriptor
+    ) {
+
+      return {
+        isMatch: false,
+        confidence: 0,
+        distance: 1
+      };
+
+    }
+
+    const descriptor1 =
+      new Float32Array(
+        realtimeDescriptor
+      );
+
+    const descriptor2 =
+      new Float32Array(
+        storedDescriptor
+      );
+
+    if (
+      descriptor1.length !==
+      descriptor2.length
+    ) {
+
+      console.log(
+        'Descriptor mismatch'
+      );
+
+      return {
+        isMatch: false,
+        confidence: 0,
+        distance: 1
+      };
+
+    }
+
+    // =====================================================
+    // EUCLIDEAN DISTANCE
+    // =====================================================
+
+    const distance =
+      faceapi.euclideanDistance(
+        descriptor1,
+        descriptor2
+      );
+
+    // =====================================================
+    // REALISTIC CONFIDENCE
+    // =====================================================
+
+    let confidence = 0;
+
+    if (distance <= 0.30) {
+
+      confidence = 0.98;
+
+    } else if (distance <= 0.35) {
+
+      confidence = 0.93;
+
+    } else if (distance <= 0.40) {
+
+      confidence = 0.88;
+
+    } else if (distance <= 0.45) {
+
+      confidence = 0.80;
+
+    } else if (distance <= 0.50) {
+
+      confidence = 0.65;
+
+    } else {
+
+      confidence = 0.30;
+
+    }
+
+    confidence =
+      Number(
+        confidence.toFixed(2)
+      );
+
+    // =====================================================
+    // STRICT VALIDATION
+    // =====================================================
+
+    const isMatch = (
+
+      distance <= FACE_MATCH_THRESHOLD &&
+
+      confidence >= MIN_CONFIDENCE
+
     );
+
+    console.log({
+
+      distance,
+      confidence,
+      isMatch
+
+    });
+
+    return {
+
+      isMatch,
+
+      confidence,
+
+      distance,
+
+      threshold:
+        FACE_MATCH_THRESHOLD
+
+    };
+
+  } catch (error) {
+
+    console.error(
+      'COMPARE FACE ERROR:',
+      error
+    );
+
+    return {
+
+      isMatch: false,
+
+      confidence: 0,
+
+      distance: 1
+
+    };
 
   }
 
-  const distance =
-    faceapi.euclideanDistance(
-      descriptor1,
-      descriptor2
-    );
-
-  return {
-
-    distance,
-
-    confidenceScore:
-      Number(
-        (
-          1 - distance
-        ).toFixed(2)
-      ),
-
-    isMatch:
-      distance < 0.55
-
-  };
-
 };
 
+// =====================================================
+// EXPORTS
+// =====================================================
+
 module.exports = {
+
   loadModels,
+
   extractFaceDescriptor,
+
   compareFaceDescriptors
-}; 
+
+};
