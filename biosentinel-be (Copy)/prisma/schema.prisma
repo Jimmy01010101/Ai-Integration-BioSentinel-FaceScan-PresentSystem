@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum AttendanceStatus {
+  HADIR
+  ABSEN
+  IZIN
+  SAKIT
+  CUTI
+}
+
+enum BiometricStatus {
+  ACTIVE
+  RESET_REQUIRED
+  REENROLL_REQUIRED
+}
+
+model SuperAdmin {
+  id Int @id @default(autoincrement())
+
+  username String @unique
+
+  password String
+
+  fullName String @default("Super Admin")
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+
+  username String @unique
+
+  password String
+
+  fullName String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  fullName String
+
+  identityNumber String @unique
+
+  division String
+
+  // =====================================================
+  // AI BIOMETRIC
+  // =====================================================
+
+  faceDescriptor Json
+
+  faceImage String?
+
+  biometricVersion Int @default(1)
+
+  biometricUpdatedAt DateTime?
+
+  biometricStatus BiometricStatus @default(ACTIVE)
+
+  // =====================================================
+  // STATUS
+  // =====================================================
+
+  isActive Boolean @default(true)
+
+  // =====================================================
+  // RELATIONS
+  // =====================================================
+
+  attendances Attendance[]
+
+  spoofLogs SpoofLog[] @relation("UserSpoofLogs")
+
+  // =====================================================
+  // TIMESTAMPS
+  // =====================================================
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model AttendanceSession {
+  id Int @id @default(autoincrement())
+
+  title String
+
+  startTime DateTime
+
+  endTime DateTime
+
+  isActive Boolean @default(true)
+
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Attendance {
+  id Int @id @default(autoincrement())
+
+  userId Int
+
+  attendanceSessionId Int
+
+  confidenceScore Float?
+
+  faceDistance Float?
+
+  smileVerified Boolean @default(false)
+
+  blinkVerified Boolean @default(false)
+
+  livenessVerified Boolean @default(false)
+
+  spoofDetected Boolean @default(false)
+
+  status AttendanceStatus
+
+  user User @relation(fields: [userId], references: [id])
+
+  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, attendanceSessionId])
+}
+
+model SpoofLog {
+  id Int @id @default(autoincrement())
+
+  userId Int?
+
+  user User? @relation("UserSpoofLogs", fields: [userId], references: [id])
+
+  identityNumber String?
+
+  imagePath String?
+
+  reason String
+
+  confidence Float?
+
+  deviceInfo String? @db.Text
+
+  createdAt DateTime @default(now())
+}
+
+model SystemSetting {
+  id Int @id @default(autoincrement())
+
+  settingKey String @unique
+
+  settingValue String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id Int @id @default(autoincrement())
+
+  actorId Int?
+
+  actorRole String
+
+  action String
+
+  targetType String?
+
+  targetId Int?
+
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
+}
+
+model LoginLog {
+  id Int @id @default(autoincrement())
+
+  username String
+
+  role String
+
+  ipAddress String?
+
+  userAgent String? @db.Text
+
+  success Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}
+
+model AttendanceAttempt {
+  id Int @id @default(autoincrement())
+
+  identityNumber String
+
+  ipAddress String?
+
+  userAgent String? @db.Text
+
+  confidenceScore Float?
+
+  faceDistance Float?
+
+  success Boolean @default(false)
+
+  reason String?
+
+  createdAt DateTime @default(now())
+}
+
+model AuditTrail {
+  id Int @id @default(autoincrement())
+
+  actorRole String
+
+  actorId Int?
+
+  action String
+
+  entity String
+
+  entityId Int?
+
+  description String? @db.Text
+
+  ipAddress String?
+
+  userAgent String? @db.Text
+
+  createdAt DateTime @default(now())
+}

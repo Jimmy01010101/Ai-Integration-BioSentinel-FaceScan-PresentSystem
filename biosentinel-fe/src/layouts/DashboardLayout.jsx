@@ -12,7 +12,6 @@ import {
   ScanFace,
   Activity,
   ShieldCheck,
-  BarChart3,
   CalendarClock 
 } from 'lucide-react';
 
@@ -61,12 +60,6 @@ function DashboardLayout({
     },
 
     {
-      title: 'Analytics',
-      icon: BarChart3,
-      path: '/super-admin/analytics'
-    },
-
-    {
       title: 'Audit Logs',
       icon: ClipboardList,
       path: '/super-admin/audit-logs'
@@ -84,6 +77,12 @@ function DashboardLayout({
       title: 'Dashboard',
       icon: LayoutDashboard,
       path: '/admin'
+    },
+
+    {
+      title: 'Lihat Pengguna',
+      icon: Users,
+      path: '/admin/users'
     },
 
     {
@@ -253,4 +252,4 @@ function DashboardLayout({
 
 }
 
-export default DashboardLayout; 
+export default DashboardLayout;  

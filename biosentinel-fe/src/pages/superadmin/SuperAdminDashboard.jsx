@@ -9,8 +9,7 @@ import {
   AlertTriangle,
   Clock3,
   Database,
-  Eye,
-  BarChart3
+  Eye
 } from 'lucide-react';
 
 import {
@@ -309,7 +308,7 @@ const loadDashboard =
               </p>
 
               <h2 className="text-4xl font-black">
-                {stats?.totalUsers || 0}
+                {stats?.users?.total || 0}
               </h2>
 
             </div>
@@ -340,7 +339,7 @@ const loadDashboard =
               </p>
 
               <h2 className="text-4xl font-black">
-                {stats?.totalAdmins || 0}
+                {stats?.admins?.total || 0}
               </h2>
 
             </div>
@@ -371,7 +370,7 @@ const loadDashboard =
               </p>
 
               <h2 className="text-4xl font-black">
-                {todayAttendance?.totalAttendance || 0}
+                {stats?.attendance?.today || 0}
               </h2>
 
             </div>
@@ -402,7 +401,9 @@ const loadDashboard =
               </p>
 
               <h2 className="text-4xl font-black">
-                {stats?.securityAlerts || 0}
+                {realtimeFeed.filter(
+                  (item) => item.spoofDetected
+                ).length || 0}
               </h2>
 
             </div>
@@ -505,11 +506,11 @@ const loadDashboard =
 
                     <h2 className="text-4xl font-black">
                       {
-
-                        todayAttendance?.present ||
-
-                        0
-
+                        Array.isArray(todayAttendance)
+                          ? todayAttendance.filter(
+                              (item) => item.status === 'HADIR'
+                            ).length
+                          : 0
                       }
                     </h2>
 
@@ -575,51 +576,6 @@ const loadDashboard =
                   />
 
                 </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          {/* ANALYTICS */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
-
-            <div className="flex items-center gap-3 mb-8">
-
-              <BarChart3
-                className="text-red-500"
-                size={28}
-              />
-
-              <div>
-
-                <h2 className="text-2xl font-bold">
-                  Governance Analytics
-                </h2>
-
-                <p className="text-red-100/50">
-                  Enterprise attendance insights
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div className="h-[300px] rounded-3xl border border-dashed border-red-900 bg-[#160909] flex items-center justify-center">
-
-              <div className="text-center">
-
-                <BarChart3
-                  className="mx-auto mb-4 text-red-500"
-                  size={50}
-                />
-
-                <p className="text-red-100/50">
-                  Realtime Analytics Visualization
-                </p>
 
               </div>
 

@@ -334,6 +334,7 @@ function LoginPage() {
             <input
               type="password"
               name="password"
+              autoComplete="current-password"
               required
               onChange={handleChange}
               placeholder="Masukkan Password"
@@ -388,4 +389,4 @@ function LoginPage() {
 
 }
 
-export default LoginPage;
+export default LoginPage; 

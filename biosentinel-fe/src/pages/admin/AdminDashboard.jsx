@@ -1,12 +1,9 @@
 import {
   Activity,
-  AlertTriangle,
-  Clock3,
-  Eye,
-  ScanFace,
   ShieldAlert,
   Users,
-  UserCheck
+  UserCheck,
+  CalendarClock
 } from 'lucide-react';
 
 import {
@@ -16,210 +13,112 @@ import {
 
 import toast from 'react-hot-toast';
 
-import api from '../../services/api';
+import {
+  getAttendanceSummary,
+  getPresenceBoard,
+  getActiveSession,
+  getSpoofLogs
+} from '../../services/adminService';
 
 
 function AdminDashboard() {
 
-  // STATES
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [presenceBoard, setPresenceBoard] =
-    useState([]);
+  const [summary, setSummary] = useState(null);
 
-  const [stats, setStats] =
-    useState(null);
+  const [presenceBoard, setPresenceBoard] = useState([]);
 
-  const [sessions, setSessions] =
-    useState([]);
+  const [session, setSession] = useState(null);
 
-  const [spoofLogs, setSpoofLogs] =
-    useState([]);
+  const [spoofLogs, setSpoofLogs] = useState([]);
 
 
   // LOAD DASHBOARD
-  const loadDashboard =
-    async () => {
+  const loadDashboard = async () => {
 
-      try {
+    try {
 
-        setLoading(true);
+      const [
+        summaryRes,
+        boardRes,
+        sessionRes,
+        spoofRes
+      ] = await Promise.all([
+        getAttendanceSummary(),
+        getPresenceBoard(),
+        getActiveSession(),
+        getSpoofLogs()
+      ]);
 
+      setSummary(summaryRes?.data || null);
 
-        // STATS
-        try {
+      setPresenceBoard(boardRes?.data || []);
 
-          const statsRes =
-            await api.get(
+      setSession(sessionRes?.data || null);
 
-              '/admin/dashboard/stats'
+      setSpoofLogs(spoofRes?.data || []);
 
-            );
+    } catch (error) {
 
-          setStats(
-            statsRes.data.data
-          );
+      console.error(error);
 
-        } catch (error) {
+      toast.error('Gagal memuat dashboard admin');
 
-          console.error(
-            'Stats Error',
-            error
-          );
+    } finally {
 
-        }
+      setLoading(false);
 
+    }
 
-        // PRESENCE BOARD
-        try {
+  };
 
-          const boardRes =
-            await api.get(
-
-              '/admin/attendance/presence-board'
-
-            );
-
-          setPresenceBoard(
-            boardRes.data.data || []
-          );
-
-        } catch (error) {
-
-          console.error(
-            'Presence Board Error',
-            error
-          );
-
-        }
-
-
-        // ACTIVE SESSION
-        try {
-
-          const sessionRes =
-            await api.get(
-
-              '/admin/session/active'
-
-            );
-
-          setSessions(
-            sessionRes.data.data || []
-          );
-
-        } catch (error) {
-
-          if (
-            error.response?.status !== 404
-          ) {
-
-            console.error(
-              'Session Error',
-              error
-            );
-
-          }
-
-        }
-
-
-        // SPOOF LOGS
-        try {
-
-          const spoofRes =
-            await api.get(
-
-              '/admin/security/spoof-logs'
-
-            );
-
-          setSpoofLogs(
-            spoofRes.data.data || []
-          );
-
-        } catch (error) {
-
-          console.error(
-            'Spoof Logs Error',
-            error
-          );
-
-        }
-
-      } catch (error) {
-
-        console.error(error);
-
-        toast.error(
-          'Failed load admin dashboard'
-        );
-
-      } finally {
-
-        setLoading(false);
-
-      }
-
-    };
-
-
-  // INIT
   useEffect(() => {
 
     loadDashboard();
 
-    const interval =
-      setInterval(() => {
+    const interval = setInterval(loadDashboard, 15000);
 
-        loadDashboard();
-
-      }, 10000);
-
-    return () =>
-      clearInterval(interval);
+    return () => clearInterval(interval);
 
   }, []);
 
 
-  // LOADING
+  const formatTime = (value) => {
+
+    if (!value) return '-';
+
+    return new Date(value).toLocaleString('id-ID');
+
+  };
+
+
   if (loading) {
 
     return (
-
-      <div className="min-h-screen flex items-center justify-center text-white">
-
+      <div className="min-h-[60vh] flex items-center justify-center text-white">
         <div className="text-center">
-
           <div className="w-16 h-16 border-4 border-red-700 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-
-          <p className="text-red-200">
-            Loading Admin Dashboard...
-          </p>
-
+          <p className="text-red-200">Memuat Dashboard Admin...</p>
         </div>
-
       </div>
-
     );
 
   }
 
-
   return (
 
-    <div className="min-h-screen text-white">
+    <div className="text-white">
 
       {/* HEADER */}
       <div className="mb-10">
 
-        <h1 className="text-4xl font-black text-red-500 mb-3">
+        <h1 className="text-4xl font-black text-red-500 mb-2">
           Admin Dashboard
         </h1>
 
-        <p className="text-red-100/60 text-lg">
-          Attendance Monitoring & Operational Center
+        <p className="text-red-100/60">
+          Pemantauan presensi & pusat operasional
         </p>
 
       </div>
@@ -228,480 +127,220 @@ function AdminDashboard() {
       {/* STATS */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
 
-        {/* TODAY */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6 backdrop-blur-xl">
-
+        {/* TOTAL USER */}
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
           <div className="flex items-center justify-between">
-
             <div>
-
-              <p className="text-red-100/60 text-sm mb-2">
-                Present Today
-              </p>
-
-              <h2 className="text-4xl font-black">
-
-                {
-
-                  stats?.presentToday ||
-
-                  0
-
-                }
-
-              </h2>
-
+              <p className="text-red-100/60 text-sm mb-2">Total User Aktif</p>
+              <h2 className="text-4xl font-black">{summary?.totalUsers ?? 0}</h2>
             </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-
-              <UserCheck
-                className="text-red-500"
-                size={30}
-              />
-
+            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
+              <Users className="text-red-500" size={28} />
             </div>
-
           </div>
-
         </div>
 
-
-        {/* ABSENT */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6 backdrop-blur-xl">
-
+        {/* HADIR */}
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
           <div className="flex items-center justify-between">
-
             <div>
-
-              <p className="text-red-100/60 text-sm mb-2">
-                Absent Today
-              </p>
-
-              <h2 className="text-4xl font-black">
-
-                {
-
-                  stats?.absentToday ||
-
-                  0
-
-                }
-
-              </h2>
-
+              <p className="text-red-100/60 text-sm mb-2">Total Hadir</p>
+              <h2 className="text-4xl font-black">{summary?.hadir ?? 0}</h2>
             </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-
-              <Users
-                className="text-red-500"
-                size={30}
-              />
-
+            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
+              <UserCheck className="text-red-500" size={28} />
             </div>
-
           </div>
-
         </div>
 
-
-        {/* ACTIVE SESSION */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6 backdrop-blur-xl">
-
+        {/* ABSEN */}
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
           <div className="flex items-center justify-between">
-
             <div>
-
-              <p className="text-red-100/60 text-sm mb-2">
-                Active Session
-              </p>
-
-              <h2 className="text-xl font-black">
-
-                {
-
-                  sessions?.title ||
-
-                  'No Session'
-
-                }
-
-              </h2>
-
+              <p className="text-red-100/60 text-sm mb-2">Total Absen</p>
+              <h2 className="text-4xl font-black">{summary?.absen ?? 0}</h2>
             </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-
-              <Clock3
-                className="text-red-500"
-                size={30}
-              />
-
+            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
+              <Activity className="text-red-500" size={28} />
             </div>
-
           </div>
-
         </div>
-
 
         {/* SPOOF */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6 backdrop-blur-xl">
-
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
           <div className="flex items-center justify-between">
-
             <div>
-
-              <p className="text-red-100/60 text-sm mb-2">
-                Spoof Alerts
-              </p>
-
-              <h2 className="text-4xl font-black">
-
-                {
-
-                  spoofLogs.length ||
-
-                  0
-
-                }
-
-              </h2>
-
+              <p className="text-red-100/60 text-sm mb-2">Deteksi Spoof</p>
+              <h2 className="text-4xl font-black">{summary?.spoof ?? 0}</h2>
             </div>
-
-            <div className="w-16 h-16 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-
-              <ShieldAlert
-                className="text-red-500"
-                size={30}
-              />
-
+            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
+              <ShieldAlert className="text-red-500" size={28} />
             </div>
-
           </div>
-
         </div>
 
       </div>
 
 
-      {/* MAIN GRID */}
-      <div className="grid xl:grid-cols-3 gap-8">
+      {/* SESSION INFO */}
+      <div className="bg-black/40 border border-red-950 rounded-3xl p-8 mb-8">
 
-        {/* LEFT */}
-        <div className="xl:col-span-2 space-y-8">
+        <div className="flex items-center gap-3 mb-6">
+          <CalendarClock className="text-red-500" size={26} />
+          <h2 className="text-2xl font-bold">Sesi Presensi Aktif</h2>
+        </div>
 
-          {/* PRESENCE BOARD */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+        {session ? (
 
-            <div className="flex items-center justify-between mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
-              <div>
-
-                <h2 className="text-2xl font-bold mb-2">
-                  Presence Board
-                </h2>
-
-                <p className="text-red-100/50">
-                  Realtime attendance monitoring
-                </p>
-
-              </div>
-
-              <div className="flex items-center gap-2 text-green-400">
-
-                <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
-
-                Live
-
-              </div>
-
+            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
+              <p className="text-red-100/50 text-sm mb-1">Judul</p>
+              <p className="font-bold">{session.title}</p>
             </div>
 
+            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
+              <p className="text-red-100/50 text-sm mb-1">Mulai</p>
+              <p className="font-bold">
+                {formatTime(session.startTime)}
+              </p>
+            </div>
 
-            <div className="space-y-4">
-
-              {
-
-                presenceBoard.length > 0
-
-                  ? presenceBoard.map(
-
-                      (item, index) => (
-
-                        <div
-
-                          key={index}
-
-                          className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between"
-
-                        >
-
-                          <div>
-
-                            <h3 className="font-bold text-lg">
-                              {
-
-                                item.name ||
-
-                                'Unknown User'
-
-                              }
-                            </h3>
-
-                            <p className="text-red-100/50 text-sm">
-
-                              {
-
-                                item.status ||
-
-                                'No Status'
-
-                              }
-
-                            </p>
-
-                          </div>
-
-
-                          <div className="flex items-center gap-3">
-
-                            <Eye
-                              className="text-red-500"
-                              size={24}
-                            />
-
-                          </div>
-
-                        </div>
-
-                      )
-
-                    )
-
-                  : (
-
-                    <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
-
-                      No presence activity
-
-                    </div>
-
-                  )
-
-              }
-
+            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
+              <p className="text-red-100/50 text-sm mb-1">Berakhir</p>
+              <p className="font-bold">
+                {formatTime(session.endTime)}
+              </p>
             </div>
 
           </div>
 
+        ) : (
 
-          {/* SESSION MONITOR */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+          <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+            Tidak ada sesi presensi yang aktif
+          </div>
 
-            <div className="flex items-center gap-3 mb-8">
+        )}
 
-              <Activity
-                className="text-red-500"
-                size={28}
-              />
+      </div>
 
-              <div>
 
-                <h2 className="text-2xl font-bold">
-                  Session Monitoring
-                </h2>
+      {/* GRID: PRESENCE BOARD + SPOOF */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                <p className="text-red-100/50">
-                  Attendance session control
-                </p>
+        {/* PRESENCE BOARD */}
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-8">
 
-              </div>
+          <div className="flex items-center justify-between mb-6">
 
+            <div>
+              <h2 className="text-2xl font-bold mb-1">Daftar Pengguna</h2>
+              <p className="text-red-100/50 text-sm">
+                Status presensi terbaru tiap user
+              </p>
             </div>
 
+            <div className="flex items-center gap-2 text-green-400">
+              <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse" />
+              Live
+            </div>
 
-            <div className="bg-[#160909] border border-red-950 rounded-2xl p-6">
+          </div>
 
-              <div className="flex items-center justify-between">
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
 
-                <div>
+            {presenceBoard.length > 0 ? (
 
-                  <p className="text-red-100/60 mb-2">
-                    Current Session
-                  </p>
+              presenceBoard.map((item) => {
 
-                  <h2 className="text-2xl font-black">
+                const status =
+                  item.latestAttendance?.status || 'Belum presensi';
 
-                    {
+                return (
 
-                      sessions?.title ||
+                  <div
+                    key={item.id}
+                    className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between"
+                  >
 
-                      'No Active Session'
+                    <div>
+                      <h3 className="font-bold">{item.fullName}</h3>
+                      <p className="text-red-100/50 text-sm">
+                        {item.identityNumber} · {item.division}
+                      </p>
+                    </div>
 
-                    }
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                      status === 'HADIR'
+                        ? 'bg-green-900/40 text-green-400'
+                        : status === 'ABSEN'
+                          ? 'bg-red-900/40 text-red-400'
+                          : 'bg-[#101827] text-red-100/60'
+                    }`}>
+                      {status}
+                    </span>
 
-                  </h2>
+                  </div>
 
-                </div>
+                );
 
-                <ScanFace
-                  className="text-red-500"
-                  size={36}
-                />
+              })
 
+            ) : (
+
+              <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+                Belum ada data pengguna
               </div>
 
-            </div>
+            )}
 
           </div>
 
         </div>
 
 
-        {/* RIGHT */}
-        <div className="space-y-8">
+        {/* SPOOF LOGS */}
+        <div className="bg-black/40 border border-red-950 rounded-3xl p-8">
 
-          {/* SPOOF ALERT */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
-
-            <div className="flex items-center gap-3 mb-8">
-
-              <AlertTriangle
-                className="text-red-500"
-                size={28}
-              />
-
-              <div>
-
-                <h2 className="text-2xl font-bold">
-                  Spoof Detection
-                </h2>
-
-                <p className="text-red-100/50">
-                  AI security monitoring
-                </p>
-
-              </div>
-
-            </div>
-
-
-            <div className="space-y-4">
-
-              {
-
-                spoofLogs.length > 0
-
-                  ? spoofLogs.map(
-
-                      (item, index) => (
-
-                        <div
-
-                          key={index}
-
-                          className="bg-[#160909] border border-red-950 rounded-2xl p-5"
-
-                        >
-
-                          <p className="font-semibold mb-2">
-
-                            {
-
-                              item.userName ||
-
-                              'Unknown User'
-
-                            }
-
-                          </p>
-
-                          <p className="text-sm text-red-100/50">
-
-                            {
-
-                              item.message ||
-
-                              'Spoof attempt detected'
-
-                            }
-
-                          </p>
-
-                        </div>
-
-                      )
-
-                    )
-
-                  : (
-
-                    <div className="bg-[#160909] border border-red-950 rounded-2xl p-5 text-red-100/50">
-
-                      No spoof alerts
-
-                    </div>
-
-                  )
-
-              }
-
-            </div>
-
+          <div className="flex items-center gap-3 mb-6">
+            <ShieldAlert className="text-red-500" size={24} />
+            <h2 className="text-2xl font-bold">Deteksi Spoof Terbaru</h2>
           </div>
 
+          <div className="space-y-3 max-h-[420px] overflow-y-auto">
 
-          {/* REALTIME STATUS */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+            {spoofLogs.length > 0 ? (
 
-            <h2 className="text-2xl font-bold mb-8">
-              System Status
-            </h2>
+              spoofLogs.map((log) => (
 
+                <div
+                  key={log.id}
+                  className="bg-[#160909] border border-red-950 rounded-2xl p-5"
+                >
 
-            <div className="space-y-5">
+                  <p className="font-semibold text-red-400">
+                    {log.reason}
+                  </p>
 
-              <div className="flex items-center justify-between">
+                  <p className="text-red-100/40 text-sm mt-1">
+                    {log.identityNumber
+                      ? `Nomor Karyawan: ${log.identityNumber} · `
+                      : ''}
+                    {formatTime(log.createdAt)}
+                  </p>
 
-                <span className="text-red-100/60">
-                  AI Detection
-                </span>
+                </div>
 
-                <span className="text-green-400">
-                  Stable
-                </span>
+              ))
 
+            ) : (
+
+              <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+                Tidak ada deteksi spoof
               </div>
 
-
-              <div className="flex items-center justify-between">
-
-                <span className="text-red-100/60">
-                  Realtime Monitoring
-                </span>
-
-                <span className="text-green-400">
-                  Active
-                </span>
-
-              </div>
-
-
-              <div className="flex items-center justify-between">
-
-                <span className="text-red-100/60">
-                  Attendance Engine
-                </span>
-
-                <span className="text-green-400">
-                  Online
-                </span>
-
-              </div>
-
-            </div>
+            )}
 
           </div>
 
@@ -715,4 +354,4 @@ function AdminDashboard() {
 
 }
 
-export default AdminDashboard; 
+export default AdminDashboard;

@@ -48,6 +48,13 @@ function UserAttendancePage() {
   const [aiReady, setAiReady] =
     useState(false);
 
+  // RIWAYAT PRESENSI PER-MINGGU
+  const [weeklyHistory, setWeeklyHistory] =
+    useState(null);
+
+  const [weeklyLoading, setWeeklyLoading] =
+    useState(false);
+
 
   // REFS
   const videoRef =
@@ -198,6 +205,10 @@ function UserAttendancePage() {
         setScanStatus(
           'User Verified'
         );
+
+
+        // AMBIL RIWAYAT PRESENSI PER-MINGGU
+        fetchWeeklyHistory(employeeCode);
 
 
         await startCamera();
@@ -730,6 +741,56 @@ const captureAttendance = async () => {
 }; 
 
 
+  // =====================================================
+  // RIWAYAT PRESENSI PER-MINGGU
+  // Diambil setelah user terverifikasi.
+  // =====================================================
+  const fetchWeeklyHistory = async (identityNumber) => {
+
+    try {
+
+      setWeeklyLoading(true);
+
+      const response =
+        await api.get('/attendance/user-history', {
+          params: {
+            identityNumber,
+            filter: 'weekly'
+          }
+        });
+
+      setWeeklyHistory(response.data);
+
+    } catch (error) {
+
+      console.error(error);
+
+      setWeeklyHistory(null);
+
+    } finally {
+
+      setWeeklyLoading(false);
+
+    }
+
+  };
+
+
+  // FORMAT WAKTU SINGKAT
+  const formatShortTime = (value) => {
+
+    if (!value) return '-';
+
+    return new Date(value).toLocaleString('id-ID', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+  };
+
+
   return (
 
     <div className="min-h-screen bg-gradient-to-br from-black via-[#160909] to-[#250909] text-white px-6 py-10">
@@ -1154,10 +1215,157 @@ const captureAttendance = async () => {
 
       </div>
 
+
+      {/* =====================================================
+          RIWAYAT PRESENSI PER-MINGGU
+          Tampil setelah user terverifikasi.
+      ===================================================== */}
+      {userData && (
+
+        <div className="max-w-7xl mx-auto mt-8">
+
+          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+
+            <div className="flex items-center justify-between mb-6">
+
+              <div>
+                <h2 className="text-2xl font-black text-red-400">
+                  Riwayat Presensi Minggu Ini
+                </h2>
+                <p className="text-red-100/50 text-sm mt-1">
+                  {userData.fullName} · {userData.identityNumber}
+                </p>
+              </div>
+
+              <a
+                href="/attendance/history"
+                className="text-sm text-red-300 hover:text-white transition-all"
+              >
+                Lihat Semua Riwayat →
+              </a>
+
+            </div>
+
+            {weeklyLoading ? (
+
+              <p className="text-red-100/40 text-center py-8">
+                Memuat riwayat...
+              </p>
+
+            ) : !weeklyHistory ? (
+
+              <p className="text-red-100/40 text-center py-8">
+                Riwayat belum tersedia
+              </p>
+
+            ) : (
+
+              <>
+
+                {/* RINGKASAN */}
+                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+
+                  {[
+                    { label: 'Total', value: weeklyHistory.summary?.total, color: 'text-white' },
+                    { label: 'Hadir', value: weeklyHistory.summary?.hadir, color: 'text-green-400' },
+                    { label: 'Absen', value: weeklyHistory.summary?.absen, color: 'text-red-400' },
+                    { label: 'Izin', value: weeklyHistory.summary?.izin, color: 'text-blue-300' },
+                    { label: 'Cuti', value: weeklyHistory.summary?.cuti, color: 'text-purple-300' },
+                    { label: 'Sakit', value: weeklyHistory.summary?.sakit, color: 'text-yellow-300' }
+                  ].map((s) => (
+
+                    <div
+                      key={s.label}
+                      className="bg-[#160909] border border-red-950 rounded-2xl p-4 text-center"
+                    >
+                      <p className="text-red-100/50 text-xs mb-1">{s.label}</p>
+                      <p className={`text-2xl font-black ${s.color}`}>
+                        {s.value ?? 0}
+                      </p>
+                    </div>
+
+                  ))}
+
+                </div>
+
+                {/* TABEL */}
+                <div className="border border-red-950 rounded-2xl overflow-hidden">
+
+                  <table className="w-full text-left text-sm">
+
+                    <thead className="bg-[#160909] text-red-100/60">
+                      <tr>
+                        <th className="px-5 py-3">Sesi</th>
+                        <th className="px-5 py-3">Status</th>
+                        <th className="px-5 py-3">Waktu</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+
+                      {(weeklyHistory.data || []).length === 0 ? (
+
+                        <tr>
+                          <td colSpan={3} className="px-5 py-8 text-center text-red-100/40">
+                            Belum ada presensi minggu ini
+                          </td>
+                        </tr>
+
+                      ) : (
+
+                        weeklyHistory.data.map((item) => (
+
+                          <tr
+                            key={item.id}
+                            className="border-t border-red-950/50"
+                          >
+
+                            <td className="px-5 py-3 font-semibold">
+                              {item.attendanceSession?.title || '-'}
+                            </td>
+
+                            <td className="px-5 py-3">
+                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                item.status === 'HADIR'
+                                  ? 'bg-green-900/40 text-green-400'
+                                  : item.status === 'ABSEN'
+                                    ? 'bg-red-900/40 text-red-400'
+                                    : 'bg-[#160909] text-red-100/60'
+                              }`}>
+                                {item.status}
+                              </span>
+                            </td>
+
+                            <td className="px-5 py-3 text-red-100/60">
+                              {formatShortTime(item.createdAt)}
+                            </td>
+
+                          </tr>
+
+                        ))
+
+                      )}
+
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </>
+
+            )}
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
 
   );
 
 }
 
-export default UserAttendancePage;  
+export default UserAttendancePage; 

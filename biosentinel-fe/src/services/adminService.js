@@ -1,0 +1,143 @@
+import api from './api';
+
+// =====================================================
+// ADMIN SERVICE
+// Semua endpoint sesuai backend (LOCKED):
+//   /api/admin/attendance/*  (adminMonitoringRoutes)
+//   /api/admin/report/*      (adminReportRoutes)
+//   /api/attendance/:id/status (attendanceRoutes)
+// =====================================================
+
+
+// ===========================
+// MONITORING / PRESENSI
+// ===========================
+
+// Presensi hari ini
+export const getTodayAttendance =
+  async () => {
+
+    const response =
+      await api.get('/admin/attendance/today');
+
+    return response.data;
+};
+
+// Papan kehadiran (daftar user + presensi terbaru)
+export const getPresenceBoard =
+  async () => {
+
+    const response =
+      await api.get('/admin/attendance/presence-board');
+
+    return response.data;
+};
+
+// Statistik presensi
+export const getAttendanceStatistics =
+  async () => {
+
+    const response =
+      await api.get('/admin/attendance/statistics');
+
+    return response.data;
+};
+
+// Log spoof
+export const getSpoofLogs =
+  async () => {
+
+    const response =
+      await api.get('/admin/attendance/spoof-logs');
+
+    return response.data;
+};
+
+// Sesi presensi aktif
+export const getActiveSession =
+  async () => {
+
+    const response =
+      await api.get('/admin/attendance/active-session');
+
+    return response.data;
+};
+
+
+// ===========================
+// LAPORAN PRESENSI
+// ===========================
+
+// Rekap harian
+export const getDailyRecap =
+  async () => {
+
+    const response =
+      await api.get('/admin/report/daily');
+
+    return response.data;
+};
+
+// Riwayat presensi dengan filter (status, division)
+export const filterAttendance =
+  async (params) => {
+
+    const response =
+      await api.get('/admin/report/filter', {
+        params
+      });
+
+    return response.data;
+};
+
+// Ringkasan presensi
+export const getAttendanceSummary =
+  async () => {
+
+    const response =
+      await api.get('/admin/report/summary');
+
+    return response.data;
+};
+
+// Rekap per sesi
+export const getSessionRecap =
+  async (sessionId) => {
+
+    const response =
+      await api.get(
+        `/admin/report/session/${sessionId}`
+      );
+
+    return response.data;
+};
+
+// Riwayat presensi per user
+export const getUserReport =
+  async (userId) => {
+
+    const response =
+      await api.get(
+        `/admin/report/user/${userId}`
+      );
+
+    return response.data;
+};
+
+
+// ===========================
+// KELOLA STATUS
+// ===========================
+
+// Ubah status presensi (hanya ABSEN -> IZIN/CUTI/SAKIT)
+export const manageAttendanceStatus =
+  async (id, payload) => {
+
+    const response =
+      await api.patch(
+        `/attendance/${id}/status`,
+        payload
+      );
+
+    return response.data;
+};

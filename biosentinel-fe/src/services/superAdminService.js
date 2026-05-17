@@ -186,6 +186,89 @@ export const getAllAdmins =
     return response.data;
 };
 
+export const getAdminDetail =
+  async (id) => {
+
+    const response =
+      await api.get(
+        `/super-admin/admin/${id}`
+      );
+
+    return response.data;
+};
+
+export const createAdmin =
+  async (payload) => {
+
+    const response =
+      await api.post(
+        '/super-admin/admin/create',
+        payload
+      );
+
+    return response.data;
+};
+
+export const updateAdmin =
+  async (id, payload) => {
+
+    const response =
+      await api.put(
+        `/super-admin/admin/${id}/update`,
+        payload
+      );
+
+    return response.data;
+};
+
+export const toggleAdminStatus =
+  async (id) => {
+
+    const response =
+      await api.patch(
+        `/super-admin/admin/${id}/toggle-status`
+      );
+
+    return response.data;
+};
+
+export const deleteAdmin =
+  async (id) => {
+
+    const response =
+      await api.delete(
+        `/super-admin/admin/${id}/delete`
+      );
+
+    return response.data;
+};
+
+// ===========================
+// DASHBOARD (REALTIME + SESSION)
+// ===========================
+
+export const getDashboardSession =
+  async () => {
+
+    const response =
+      await api.get(
+        '/super-admin/dashboard/session'
+      );
+
+    return response.data;
+};
+
+export const getDashboardRealtime =
+  async () => {
+
+    const response =
+      await api.get(
+        '/super-admin/dashboard/realtime'
+      );
+
+    return response.data;
+};
+
 // ===========================
 // AUDIT
 // ===========================
@@ -210,4 +293,4 @@ export const getAuditLogs =
       );
 
     return response.data;
-};
+}; 
