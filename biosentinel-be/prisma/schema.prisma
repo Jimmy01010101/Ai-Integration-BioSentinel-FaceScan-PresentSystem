@@ -20,175 +20,244 @@ enum AttendanceStatus {
   CUTI
 }
 
-model SuperAdmin {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
-  password   String
-  fullName   String   @default("Super Admin") 
-  isActive   Boolean  @default(true)
+enum BiometricStatus {
+  ACTIVE
+  RESET_REQUIRED
+  REENROLL_REQUIRED
+}
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model SuperAdmin {
+  id Int @id @default(autoincrement())
+
+  username String @unique
+
+  password String
+
+  fullName String @default("Super Admin")
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
 
 model Admin {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
-  password   String
-  fullName   String
+  id Int @id @default(autoincrement())
 
-  isActive   Boolean  @default(true)
+  username String @unique
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  password String
+
+  fullName String
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
 
 model User {
-  id                Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  fullName          String
-  identityNumber    String   @unique
-  division          String
+  fullName String
 
-  faceDescriptor    Json
-  faceImage         String?
+  identityNumber String @unique
 
-  isActive          Boolean  @default(true)
+  division String
 
-  attendances       Attendance[]
+  // =====================================================
+  // AI BIOMETRIC
+  // =====================================================
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  faceDescriptor Json
+
+  faceImage String?
+
+  biometricVersion Int @default(1)
+
+  biometricUpdatedAt DateTime?
+
+  biometricStatus BiometricStatus @default(ACTIVE)
+
+  // =====================================================
+  // STATUS
+  // =====================================================
+
+  isActive Boolean @default(true)
+
+  // =====================================================
+  // RELATIONS
+  // =====================================================
+
+  attendances Attendance[]
+
+  spoofLogs SpoofLog[] @relation("UserSpoofLogs")
+
+  // =====================================================
+  // TIMESTAMPS
+  // =====================================================
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
 
 model AttendanceSession {
-  id           Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  title        String
+  title String
 
-  startTime    DateTime
-  endTime      DateTime
+  startTime DateTime
 
-  isActive     Boolean  @default(true)
+  endTime DateTime
 
-  attendances  Attendance[]
+  isActive Boolean @default(true)
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
 
 model Attendance {
-  id                    Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId                Int
-  attendanceSessionId   Int
+  userId Int
 
-  confidenceScore       Float?
+  attendanceSessionId Int
 
-  smileVerified         Boolean  @default(false)
-  blinkVerified         Boolean  @default(false)
-  livenessVerified      Boolean  @default(false)
+  confidenceScore Float?
 
-  spoofDetected         Boolean  @default(false)
+  faceDistance Float?
 
-  status                AttendanceStatus
+  smileVerified Boolean @default(false)
 
-  user                  User @relation(fields: [userId], references: [id])
+  blinkVerified Boolean @default(false)
 
-  attendanceSession     AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
+  livenessVerified Boolean @default(false)
 
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  spoofDetected Boolean @default(false)
+
+  status AttendanceStatus
+
+  user User @relation(fields: [userId], references: [id])
+
+  attendanceSession AttendanceSession @relation(fields: [attendanceSessionId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, attendanceSessionId])
-} 
+}
 
 model SpoofLog {
-  id           Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  userId       Int?
-  imagePath    String?
+  userId Int?
 
-  reason       String
+  user User? @relation("UserSpoofLogs", fields: [userId], references: [id])
 
-  createdAt    DateTime @default(now())
+  identityNumber String?
+
+  imagePath String?
+
+  reason String
+
+  confidence Float?
+
+  deviceInfo String? @db.Text
+
+  createdAt DateTime @default(now())
 }
 
 model SystemSetting {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  settingKey    String   @unique
-  settingValue  String
+  settingKey String @unique
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-} 
+  settingValue String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
 
 model AuditLog {
+  id Int @id @default(autoincrement())
 
-  id          Int       @id @default(autoincrement())
+  actorId Int?
 
-  actorId     Int?
-  actorRole   String
-  action      String
-  targetType  String?
-  targetId    Int?
-  description String?   @db.Text
+  actorRole String
 
-  createdAt   DateTime  @default(now())
+  action String
 
+  targetType String?
+
+  targetId Int?
+
+  description String? @db.Text
+
+  createdAt DateTime @default(now())
 }
 
 model LoginLog {
+  id Int @id @default(autoincrement())
 
-  id          Int       @id @default(autoincrement())
+  username String
 
-  username    String
-  role        String
+  role String
 
-  ipAddress   String?
-  userAgent   String?   @db.Text
+  ipAddress String?
 
-  success     Boolean   @default(true)
+  userAgent String? @db.Text
 
-  createdAt   DateTime  @default(now())
+  success Boolean @default(true)
 
+  createdAt DateTime @default(now())
 }
 
 model AttendanceAttempt {
+  id Int @id @default(autoincrement())
 
-  id                Int       @id @default(autoincrement())
+  identityNumber String
 
-  identityNumber    String
+  ipAddress String?
 
-  ipAddress         String?
-  userAgent         String?   @db.Text
+  userAgent String? @db.Text
 
-  success           Boolean   @default(false)
+  confidenceScore Float?
 
-  reason            String?
+  faceDistance Float?
 
-  createdAt         DateTime  @default(now())
+  success Boolean @default(false)
 
+  reason String?
+
+  createdAt DateTime @default(now())
 }
 
 model AuditTrail {
+  id Int @id @default(autoincrement())
 
-  id            Int       @id @default(autoincrement())
+  actorRole String
 
-  actorRole     String
-  actorId       Int?
+  actorId Int?
 
-  action        String
-  entity        String
+  action String
 
-  entityId      Int?
+  entity String
 
-  description   String?   @db.Text
+  entityId Int?
 
-  ipAddress     String?
-  userAgent     String?   @db.Text
+  description String? @db.Text
 
-  createdAt     DateTime  @default(now())
+  ipAddress String?
 
+  userAgent String? @db.Text
+
+  createdAt DateTime @default(now())
 }

@@ -523,28 +523,39 @@ const captureAttendance = async () => {
       'Matching Face'
     );
 
-    const canvas =
-      canvasRef.current;
-
     const video =
       videoRef.current;
 
-    canvas.width =
+    // =====================================================
+    // CANVAS BERSIH KHUSUS CAPTURE
+    // PENTING: jangan pakai canvasRef (canvas overlay),
+    // karena canvas itu sudah berisi gambar garis
+    // landmark wajah. Foto yang dikirim ke server HARUS
+    // foto wajah murni tanpa coretan, agar AI face
+    // recognition di backend bisa mengekstrak descriptor
+    // dengan benar.
+    // =====================================================
+    const captureCanvas =
+      document.createElement('canvas');
+
+    captureCanvas.width =
       video.videoWidth;
 
-    canvas.height =
+    captureCanvas.height =
       video.videoHeight;
 
     const context =
-      canvas.getContext('2d');
+      captureCanvas.getContext('2d');
 
     context.drawImage(
       video,
       0,
       0,
-      canvas.width,
-      canvas.height
+      captureCanvas.width,
+      captureCanvas.height
     );
+
+    const canvas = captureCanvas;
 
     const blob =
       await new Promise((resolve) => {
@@ -724,15 +735,26 @@ const captureAttendance = async () => {
     <div className="min-h-screen bg-gradient-to-br from-black via-[#160909] to-[#250909] text-white px-6 py-10">
 
       {/* HEADER */}
-      <div className="max-w-7xl mx-auto mb-10">
+      <div className="max-w-7xl mx-auto mb-10 flex flex-wrap items-end justify-between gap-4">
 
-        <h1 className="text-5xl font-black text-red-500 mb-4">
-          BioSentinel - AI 1.0
-        </h1>
+        <div>
 
-        <p className="text-red-100/60 text-lg">
-          AI Biometric Attendance System
-        </p>
+          <h1 className="text-5xl font-black text-red-500 mb-4">
+            BioSentinel - AI 1.0
+          </h1>
+
+          <p className="text-red-100/60 text-lg">
+            AI Biometric Attendance System
+          </p>
+
+        </div>
+
+        <a
+          href="/attendance/history"
+          className="inline-flex items-center gap-2 bg-[#160909] border border-red-950 hover:bg-red-950/40 transition-all px-5 py-3 rounded-2xl font-semibold"
+        >
+          Lihat Riwayat Presensi
+        </a>
 
       </div>
 
@@ -1138,4 +1160,4 @@ const captureAttendance = async () => {
 
 }
 
-export default UserAttendancePage; 
+export default UserAttendancePage;  

@@ -19,6 +19,7 @@ const {
   verifyUserAttendance,
   checkInAttendance,
   getAttendanceHistory,
+  getUserPublicHistory,
   updateAttendanceStatus,
   getRealtimeAttendanceFeed
 
@@ -26,24 +27,41 @@ const {
   '../controllers/attendance/attendanceController'
 );
 
-// VERIFY USER
+
+// =====================================================
+// VERIFY USER (PUBLIK)
+// =====================================================
 router.post(
   '/verify-user',
   verifyUserAttendance
 );
 
-// CHECK-IN
+
+// =====================================================
+// CHECK-IN (PUBLIK)
+// Menerima FormData: faceImage (file) + field liveness
+// =====================================================
 router.post(
   '/check-in',
 
-  upload.single(
-    'faceImage'
-  ),
+  upload.single('faceImage'),
 
   checkInAttendance
 );
 
-// REALTIME FEED
+
+// =====================================================
+// RIWAYAT PRESENSI USER (PUBLIK - tanpa login)
+// =====================================================
+router.get(
+  '/user-history',
+  getUserPublicHistory
+);
+
+
+// =====================================================
+// REALTIME FEED (ADMIN / SUPER ADMIN)
+// =====================================================
 router.get(
   '/realtime-feed',
 
@@ -57,7 +75,10 @@ router.get(
   getRealtimeAttendanceFeed
 );
 
-// HISTORY
+
+// =====================================================
+// HISTORY (ADMIN / SUPER ADMIN)
+// =====================================================
 router.get(
   '/history',
 
@@ -71,7 +92,10 @@ router.get(
   getAttendanceHistory
 );
 
-// UPDATE STATUS
+
+// =====================================================
+// UPDATE STATUS (KELOLA STATUS - ADMIN / SUPER ADMIN)
+// =====================================================
 router.patch(
   '/:id/status',
 
@@ -84,5 +108,6 @@ router.patch(
 
   updateAttendanceStatus
 );
+
 
 module.exports = router; 

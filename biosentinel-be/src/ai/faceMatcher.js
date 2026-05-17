@@ -36,12 +36,27 @@ faceapi.env.monkeyPatch({
 let modelsLoaded = false;
 
 // =====================================================
-// SECURITY CONFIG
+// AI CONFIG
+// =====================================================
+// FACE_MATCH_THRESHOLD:
+//   Ambang jarak euclidean. Wajah dianggap COCOK jika
+//   distance <= threshold. Standar face-api.js = 0.6.
+//   0.44 terlalu ketat untuk webcam + cahaya ruangan,
+//   sehingga wajah asli pun sering ditolak.
+//   0.54 = keseimbangan aman: akurat tapi toleran
+//   terhadap variasi pencahayaan/sudut.
+//
+// MIN_CONFIDENCE:
+//   Confidence minimum agar diterima. Lapis kedua
+//   pengaman selain threshold jarak.
 // =====================================================
 
-const FACE_MATCH_THRESHOLD = 0.42;
+const FACE_MATCH_THRESHOLD = 0.54;
 
-const MIN_CONFIDENCE = 0.75;
+const MIN_CONFIDENCE = 0.55;
+
+// Skor deteksi wajah minimum saat ekstraksi descriptor
+const MIN_DETECTION_SCORE = 0.55;
 
 // =====================================================
 // LOAD MODELS
@@ -73,7 +88,7 @@ const loadModels = async () => {
     modelsLoaded = true;
 
     console.log(
-      'Stable AI models loaded'
+      'Enterprise AI models loaded'
     );
 
   } catch (error) {
@@ -92,6 +107,10 @@ const loadModels = async () => {
 // =====================================================
 // IMAGE OPTIMIZATION
 // =====================================================
+// Resize + normalisasi cahaya. ".normalize()" sangat
+// membantu pada kondisi ruangan gelap karena meratakan
+// kontras sebelum wajah dianalisis.
+// =====================================================
 
 const optimizeImage = async (
   imagePath
@@ -108,11 +127,11 @@ const optimizeImage = async (
     await sharp(imagePath)
 
       .resize({
-        width: 320
+        width: 400
       })
 
       .jpeg({
-        quality: 80
+        quality: 90
       })
 
       .normalize()
@@ -167,7 +186,7 @@ const extractFaceDescriptor =
 
               inputSize: 416,
 
-              scoreThreshold: 0.65
+              scoreThreshold: 0.5
 
             })
 
@@ -190,24 +209,26 @@ const extractFaceDescriptor =
 
       }
 
-      // NO FACE
+      // TIDAK ADA WAJAH TERDETEKSI
       if (!detection) {
 
         console.log(
-          'Face not detected'
+          '[FACE] Wajah tidak terdeteksi pada gambar'
         );
 
         return null;
 
       }
 
-      // LOW QUALITY FACE
+      // KUALITAS WAJAH TERLALU RENDAH
       if (
-        detection.detection.score < 0.8
+        detection.detection.score <
+        MIN_DETECTION_SCORE
       ) {
 
         console.log(
-          'Low quality face'
+          '[FACE] Kualitas wajah rendah, skor:',
+          detection.detection.score.toFixed(3)
         );
 
         return null;
@@ -232,7 +253,85 @@ const extractFaceDescriptor =
   };
 
 // =====================================================
-// ADVANCED FACE MATCHING
+// NORMALISASI STORED DESCRIPTOR
+// =====================================================
+// Mengubah berbagai bentuk penyimpanan descriptor
+// menjadi daftar descriptor [ [128 angka], ... ].
+// Mendukung: string JSON, single descriptor, multi
+// descriptor, dan object { descriptor: [...] }.
+// =====================================================
+
+const normalizeStoredDescriptor = (
+  storedDescriptor
+) => {
+
+  let parsed = storedDescriptor;
+
+  // STRING JSON -> OBJECT
+  if (typeof parsed === 'string') {
+
+    try {
+
+      parsed = JSON.parse(parsed);
+
+    } catch (error) {
+
+      console.log(
+        '[FACE] Stored descriptor bukan JSON valid'
+      );
+
+      return [];
+
+    }
+
+  }
+
+  // KOSONG / NULL
+  if (
+    !parsed ||
+    (Array.isArray(parsed) &&
+      parsed.length === 0)
+  ) {
+
+    return [];
+
+  }
+
+  // BENTUK { descriptor: [...] }
+  if (
+    !Array.isArray(parsed) &&
+    parsed.descriptor
+  ) {
+
+    parsed = parsed.descriptor;
+
+  }
+
+  // BUKAN ARRAY -> TIDAK VALID
+  if (!Array.isArray(parsed)) {
+
+    return [];
+
+  }
+
+  // MULTI DESCRIPTOR: [ [..], [..] ]
+  if (Array.isArray(parsed[0])) {
+
+    return parsed.filter(
+      (d) =>
+        Array.isArray(d) &&
+        d.length > 0
+    );
+
+  }
+
+  // SINGLE DESCRIPTOR: [ ..128 angka.. ]
+  return [parsed];
+
+};
+
+// =====================================================
+// COMPARE FACE DESCRIPTORS
 // =====================================================
 
 const compareFaceDescriptors = (
@@ -242,111 +341,172 @@ const compareFaceDescriptors = (
 
   try {
 
+    // VALIDASI REALTIME DESCRIPTOR
     if (
       !realtimeDescriptor ||
-      !storedDescriptor
+      !Array.isArray(realtimeDescriptor) ||
+      realtimeDescriptor.length === 0
     ) {
+
+      console.log(
+        '[FACE] Realtime descriptor kosong/tidak valid'
+      );
 
       return {
         isMatch: false,
         confidence: 0,
-        distance: 1
+        distance: 1,
+        reason: 'REALTIME_DESCRIPTOR_INVALID'
       };
 
     }
 
-    const descriptor1 =
+    // NORMALISASI STORED DESCRIPTOR
+    const descriptorList =
+      normalizeStoredDescriptor(
+        storedDescriptor
+      );
+
+    // STORED DESCRIPTOR KOSONG
+    // -> user belum punya data wajah / data rusak
+    if (descriptorList.length === 0) {
+
+      console.log(
+        '[FACE] Stored descriptor user KOSONG. ' +
+        'User belum di-enroll wajah dengan benar.'
+      );
+
+      return {
+        isMatch: false,
+        confidence: 0,
+        distance: 1,
+        reason: 'STORED_DESCRIPTOR_EMPTY'
+      };
+
+    }
+
+    const realtime =
       new Float32Array(
         realtimeDescriptor
       );
 
-    const descriptor2 =
-      new Float32Array(
-        storedDescriptor
-      );
+    let bestDistance = 999;
 
-    if (
-      descriptor1.length !==
-      descriptor2.length
+    let comparedCount = 0;
+
+    // CARI KECOCOKAN TERBAIK
+    for (
+      const descriptor of descriptorList
     ) {
 
+      const stored =
+        new Float32Array(descriptor);
+
+      // DIMENSI HARUS SAMA (128)
+      if (
+        realtime.length !==
+        stored.length
+      ) {
+
+        console.log(
+          '[FACE] Dimensi descriptor beda:',
+          realtime.length,
+          'vs',
+          stored.length
+        );
+
+        continue;
+
+      }
+
+      const distance =
+        faceapi.euclideanDistance(
+          realtime,
+          stored
+        );
+
+      comparedCount += 1;
+
+      if (distance < bestDistance) {
+
+        bestDistance = distance;
+
+      }
+
+    }
+
+    // TIDAK ADA DESCRIPTOR YANG BISA DIBANDINGKAN
+    if (comparedCount === 0) {
+
       console.log(
-        'Descriptor mismatch'
+        '[FACE] Tidak ada descriptor valid untuk dibandingkan'
       );
 
       return {
         isMatch: false,
         confidence: 0,
-        distance: 1
+        distance: 1,
+        reason: 'DESCRIPTOR_DIMENSION_MISMATCH'
       };
 
     }
 
     // =====================================================
-    // EUCLIDEAN DISTANCE
-    // =====================================================
-
-    const distance =
-      faceapi.euclideanDistance(
-        descriptor1,
-        descriptor2
-      );
-
-    // =====================================================
-    // REALISTIC CONFIDENCE
+    // CONFIDENCE (disesuaikan dengan threshold 0.54)
     // =====================================================
 
     let confidence = 0;
 
-    if (distance <= 0.30) {
+    if (bestDistance <= 0.30) {
 
-      confidence = 0.98;
+      confidence = 0.99;
 
-    } else if (distance <= 0.35) {
+    } else if (bestDistance <= 0.36) {
 
-      confidence = 0.93;
+      confidence = 0.96;
 
-    } else if (distance <= 0.40) {
+    } else if (bestDistance <= 0.42) {
 
-      confidence = 0.88;
+      confidence = 0.91;
 
-    } else if (distance <= 0.45) {
+    } else if (bestDistance <= 0.48) {
 
-      confidence = 0.80;
+      confidence = 0.83;
 
-    } else if (distance <= 0.50) {
+    } else if (bestDistance <= 0.54) {
 
-      confidence = 0.65;
+      confidence = 0.70;
+
+    } else if (bestDistance <= 0.60) {
+
+      confidence = 0.45;
 
     } else {
 
-      confidence = 0.30;
+      confidence = 0.10;
 
     }
 
     confidence =
-      Number(
-        confidence.toFixed(2)
-      );
+      Number(confidence.toFixed(2));
 
     // =====================================================
-    // STRICT VALIDATION
+    // KEPUTUSAN AKHIR
+    // Lolos jika jarak <= threshold DAN confidence cukup.
     // =====================================================
 
-    const isMatch = (
-
-      distance <= FACE_MATCH_THRESHOLD &&
-
-      confidence >= MIN_CONFIDENCE
-
-    );
+    const isMatch =
+      bestDistance <= FACE_MATCH_THRESHOLD &&
+      confidence >= MIN_CONFIDENCE;
 
     console.log({
-
-      distance,
+      tag: '[FACE MATCH]',
+      distance:
+        Number(bestDistance.toFixed(4)),
       confidence,
+      threshold: FACE_MATCH_THRESHOLD,
+      comparedDescriptors: comparedCount,
       isMatch
-
     });
 
     return {
@@ -355,10 +515,14 @@ const compareFaceDescriptors = (
 
       confidence,
 
-      distance,
+      distance:
+        Number(bestDistance.toFixed(4)),
 
-      threshold:
-        FACE_MATCH_THRESHOLD
+      threshold: FACE_MATCH_THRESHOLD,
+
+      reason: isMatch
+        ? 'MATCH'
+        : 'DISTANCE_ABOVE_THRESHOLD'
 
     };
 
@@ -370,13 +534,10 @@ const compareFaceDescriptors = (
     );
 
     return {
-
       isMatch: false,
-
       confidence: 0,
-
-      distance: 1
-
+      distance: 1,
+      reason: 'COMPARE_ERROR'
     };
 
   }

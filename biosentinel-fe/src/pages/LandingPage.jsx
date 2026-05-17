@@ -26,11 +26,12 @@ function LandingPage() {
           <div>
 
             <h1 className="text-2xl font-black tracking-wide text-red-500">
-              BioSentinel - AI 1.0
+              BioSentinel - AI V1.0
             </h1>
 
             <p className="text-xs text-red-200/60 mt-1">
-              Enterprise AI Face Attendance System
+              System Presensi Berbasis AI BioSentinel - AI V10
+              <br /> By Shanti Bhuana Team FullStack
             </p>
 
           </div>
@@ -67,7 +68,7 @@ function LandingPage() {
 
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-950/50 border border-red-800 mb-6 text-sm text-red-300">
             <ShieldCheck size={18} />
-            Enterprise Biometric Attendance Platform
+            Face Scan System Presensi - Lomba CAS 12.0
           </div>
 
 
@@ -76,7 +77,7 @@ function LandingPage() {
             Sistem Presensi
 
             <span className="block text-red-500">
-              Face Recognition AI
+              Bio Sentinel - AI V1.0
             </span>
 
           </h1>
@@ -84,7 +85,7 @@ function LandingPage() {
 
           <p className="text-lg text-red-100/70 leading-relaxed mb-10 max-w-2xl">
 
-            BioSentinel - AI 1.0 menghadirkan sistem presensi modern berbasis
+            BioSentinel - AI Versi 1.0 menghadirkan sistem presensi modern berbasis
             Artificial Intelligence dengan Face Recognition, Smile Verification,
             Liveness Detection, Realtime Monitoring, dan Enterprise Security.
 

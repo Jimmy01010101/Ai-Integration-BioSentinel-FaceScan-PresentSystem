@@ -124,7 +124,7 @@ function DashboardLayout({
         <div className="mb-12">
 
           <h1 className="text-4xl font-black text-white">
-            BioSentinel - AI 1.0
+            BioSentinel - AI V1.0
           </h1>
 
           <p className="text-red-100/50 mt-2 text-sm">
