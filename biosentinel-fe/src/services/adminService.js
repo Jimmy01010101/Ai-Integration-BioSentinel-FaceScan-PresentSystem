@@ -54,13 +54,29 @@ export const getSpoofLogs =
 };
 
 // Sesi presensi aktif
+// Catatan: backend mengembalikan 404 bila tidak ada sesi
+// aktif — itu kondisi normal, bukan error. Maka 404
+// ditangani sebagai "tidak ada sesi" (mengembalikan null).
 export const getActiveSession =
   async () => {
 
-    const response =
-      await api.get('/admin/attendance/active-session');
+    try {
 
-    return response.data;
+      const response =
+        await api.get('/admin/attendance/active-session');
+
+      return response.data;
+
+    } catch (error) {
+
+      if (error.response?.status === 404) {
+        return { success: true, data: null };
+      }
+
+      throw error;
+
+    }
+
 };
 
 

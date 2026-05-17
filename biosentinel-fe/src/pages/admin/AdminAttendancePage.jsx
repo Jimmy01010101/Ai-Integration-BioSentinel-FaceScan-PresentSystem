@@ -327,8 +327,7 @@ const AdminAttendancePage = () => {
       setSubmitting(true);
 
       await manageAttendanceStatus(modalRow.id, {
-        status: modalStatus,
-        note: modalNote
+        status: modalStatus
       });
 
       toast.success('Status presensi berhasil diperbarui');
@@ -739,19 +738,6 @@ const AdminAttendancePage = () => {
                   <option value="CUTI">Cuti</option>
                   <option value="SAKIT">Sakit</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block mb-2 text-sm text-red-200/70">
-                  Catatan (opsional)
-                </label>
-                <textarea
-                  value={modalNote}
-                  onChange={(e) => setModalNote(e.target.value)}
-                  rows={3}
-                  placeholder="Tambahkan catatan..."
-                  className="w-full p-3 rounded-2xl bg-[#101827] border border-red-950 outline-none resize-none"
-                />
               </div>
 
             </div>

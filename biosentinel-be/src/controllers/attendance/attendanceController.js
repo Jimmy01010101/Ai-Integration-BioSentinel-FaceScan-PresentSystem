@@ -569,7 +569,7 @@ const updateAttendanceStatus = async (req, res) => {
   try {
 
     const { id } = req.params;
-    const { status, note } = req.body;
+    const { status } = req.body;
 
     const allowedStatuses = ['IZIN', 'CUTI', 'SAKIT'];
 
@@ -624,8 +624,7 @@ const updateAttendanceStatus = async (req, res) => {
       await prisma.attendance.update({
         where: { id: Number(id) },
         data: {
-          status,
-          note: note || null
+          status
         },
         include: {
           user: true,

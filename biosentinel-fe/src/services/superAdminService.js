@@ -33,12 +33,25 @@ export const getTodayAttendance =
 export const getActiveSession =
   async () => {
 
-    const response =
-      await api.get(
-        '/session/active'
-      );
+    try {
 
-    return response.data;
+      const response =
+        await api.get(
+          '/session/active'
+        );
+
+      return response.data;
+
+    } catch (error) {
+
+      // 404 = tidak ada sesi aktif (kondisi normal)
+      if (error.response?.status === 404) {
+        return { success: true, data: null };
+      }
+
+      throw error;
+
+    }
 };
 
 // SUPPORT OLD COMPONENT
@@ -293,4 +306,4 @@ export const getAuditLogs =
       );
 
     return response.data;
-}; 
+};
