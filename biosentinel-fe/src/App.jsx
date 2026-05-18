@@ -28,6 +28,8 @@ import AdminSecurityPage from './pages/admin/AdminSecurityPage';
 import UserAttendancePage from './pages/user/UserAttendancePage';
 import UserHistoryPage from './pages/user/UserHistoryPage';
 
+import SessionHistoryPage from './pages/shared/SessionHistoryPage';
+
 // LAYOUTS
 import DashboardLayout from './layouts/DashboardLayout';
 
@@ -140,6 +142,18 @@ function App() {
           }
         />
 
+        {/* RIWAYAT SESSION */}
+        <Route
+          path="/super-admin/session-history"
+          element={
+            <ProtectedRoute role="SUPER_ADMIN">
+              <DashboardLayout role="SUPER_ADMIN">
+                <SessionHistoryPage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* AUDIT LOGS */}
         <Route
           path="/super-admin/audit-logs"
@@ -188,6 +202,17 @@ function App() {
             <ProtectedRoute role="ADMIN">
               <DashboardLayout role="ADMIN">
                 <AdminAttendancePage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        {/* RIWAYAT SESSION */}
+        <Route
+          path="/admin/session-history"
+          element={
+            <ProtectedRoute role="ADMIN">
+              <DashboardLayout role="ADMIN">
+                <SessionHistoryPage />
               </DashboardLayout>
             </ProtectedRoute>
           }

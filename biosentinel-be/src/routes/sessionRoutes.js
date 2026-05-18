@@ -11,11 +11,14 @@ const roleMiddleware =
 
 const {
   createAttendanceSession,
-  getActiveSession
+  getActiveSession,
+  getSessionList
 } = require(
   '../controllers/attendance/sessionController'
 );
 
+
+// BUAT SESI PRESENSI (SUPER ADMIN)
 router.post(
   '/create',
   authMiddleware,
@@ -23,9 +26,22 @@ router.post(
   createAttendanceSession
 );
 
+
+// SESI AKTIF (PUBLIK — dipakai halaman presensi)
 router.get(
   '/active',
   getActiveSession
 );
 
-module.exports = router; 
+
+// DAFTAR SEMUA SESI (ADMIN & SUPER ADMIN)
+// Dipakai halaman "Riwayat Session".
+router.get(
+  '/list',
+  authMiddleware,
+  roleMiddleware('SUPER_ADMIN', 'ADMIN'),
+  getSessionList
+);
+
+
+module.exports = router;

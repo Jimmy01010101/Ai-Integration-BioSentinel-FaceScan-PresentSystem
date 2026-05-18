@@ -2,7 +2,11 @@ import {
   ShieldCheck,
   ArrowLeft,
   UserCog,
-  Shield
+  Shield,
+  ScanFace,
+  Lock,
+  User,
+  Loader2
 } from 'lucide-react';
 
 import {
@@ -28,356 +32,256 @@ import {
 
 function LoginPage() {
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
-  const { login } =
-    useAuth();
+  const { login } = useAuth();
 
-  const [loading, setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [role, setRole] =
-    useState('ADMIN');
+  const [role, setRole] = useState('ADMIN');
 
-  const [formData, setFormData] =
-    useState({
-
-      username: '',
-      password: ''
-
-    });
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
 
 
   // CHANGE
-  const handleChange =
-    (e) => {
+  const handleChange = (e) => {
 
-      setFormData({
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
 
-        ...formData,
-
-        [e.target.name]:
-          e.target.value
-
-      });
-
-    };
+  };
 
 
   // LOGIN
-  const handleLogin =
-    async (e) => {
+  const handleLogin = async (e) => {
 
-      e.preventDefault();
+    e.preventDefault();
 
-      try {
+    try {
 
-        setLoading(true);
+      setLoading(true);
 
-        let response;
+      let response;
 
+      if (role === 'SUPER_ADMIN') {
 
-        // SUPER ADMIN
-        if (
-          role === 'SUPER_ADMIN'
-        ) {
+        response = await superAdminLogin(formData);
 
-          response =
-            await superAdminLogin(
-              formData
-            );
+      } else {
 
-        }
-
-        // ADMIN
-        else {
-
-          response =
-            await adminLogin(
-              formData
-            );
-
-        }
-
-
-        // TOKEN
-        localStorage.setItem(
-          'token',
-          response.token
-        );
-
-
-        // USER DATA
-        localStorage.setItem(
-
-          'user',
-
-          JSON.stringify(
-            response.data
-          )
-
-        );
-
-
-        // CONTEXT
-        login(
-          response.data
-        );
-
-
-        toast.success(
-          response.message ||
-          'Login berhasil'
-        );
-
-
-        // REDIRECT
-        if (
-          role === 'SUPER_ADMIN'
-        ) {
-
-          navigate(
-            '/super-admin'
-          );
-
-        } else {
-
-          navigate(
-            '/admin'
-          );
-
-        }
-
-      } catch (error) {
-
-        toast.error(
-
-          error.response?.data?.message ||
-
-          'Login gagal'
-
-        );
-
-      } finally {
-
-        setLoading(false);
+        response = await adminLogin(formData);
 
       }
 
-    };
+      // TOKEN
+      localStorage.setItem('token', response.token);
+
+      // USER DATA
+      localStorage.setItem(
+        'user',
+        JSON.stringify(response.data)
+      );
+
+      // CONTEXT
+      login(response.data);
+
+      toast.success(response.message || 'Login berhasil');
+
+      // REDIRECT
+      if (role === 'SUPER_ADMIN') {
+        navigate('/super-admin');
+      } else {
+        navigate('/admin');
+      }
+
+    } catch (error) {
+
+      toast.error(
+        error.response?.data?.message || 'Login gagal'
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
 
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-black via-[#180909] to-[#2b0d0d] text-white flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-4 py-6 sm:py-10">
 
-      {/* GLOW */}
-      <div className="absolute w-[500px] h-[500px] bg-red-700/20 blur-[140px] rounded-full top-[-100px] right-[-100px]" />
+      <div className="w-full max-w-md bs-fade-in">
 
-      <div className="absolute w-[400px] h-[400px] bg-red-900/20 blur-[120px] rounded-full bottom-[-100px] left-[-100px]" />
-
-
-      {/* BACK */}
-      <Link
-        to="/"
-        className="absolute top-8 left-8 flex items-center gap-2 text-red-300 hover:text-white transition-all"
-      >
-
-        <ArrowLeft size={18} />
-
-        Kembali
-
-      </Link>
-
-
-      {/* CARD */}
-      <div className="relative z-10 w-full max-w-md bg-black/40 backdrop-blur-2xl border border-red-950 rounded-3xl p-10 shadow-2xl shadow-red-950/30">
-
-        {/* HEADER */}
-        <div className="text-center mb-10">
-
-          <div className="w-20 h-20 rounded-3xl bg-red-950 border border-red-800 flex items-center justify-center mx-auto mb-6">
-
-            <ShieldCheck
-              className="text-red-500"
-              size={38}
-            />
-
-          </div>
-
-          <h1 className="text-4xl font-black text-red-500 mb-2">
-            BioSentinel - AI V1.0
-          </h1>
-
-          <p className="text-red-100/60 text-sm leading-relaxed">
-            Enterprise Dashboard Authentication
-          </p>
-
-        </div>
-
-        {/* ROLE */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-
-          {/* ADMIN */}
-          <button
-
-            type="button"
-
-            onClick={() =>
-              setRole('ADMIN')
-            }
-
-            className={`
-
-              p-4 rounded-2xl border transition-all
-
-              ${
-
-                role === 'ADMIN'
-
-                  ? 'bg-red-700 border-red-600'
-
-                  : 'bg-[#160909] border-red-950'
-
-              }
-
-            `}
-
-          >
-
-            <UserCog
-              className="mx-auto mb-2"
-              size={28}
-            />
-
-            <span className="font-semibold">
-              Admin
-            </span>
-
-          </button>
-
-
-          {/* SUPER ADMIN */}
-          <button
-
-            type="button"
-
-            onClick={() =>
-              setRole(
-                'SUPER_ADMIN'
-              )
-            }
-
-            className={`
-
-              p-4 rounded-2xl border transition-all
-
-              ${
-
-                role === 'SUPER_ADMIN'
-
-                  ? 'bg-red-700 border-red-600'
-
-                  : 'bg-[#160909] border-red-950'
-
-              }
-
-            `}
-
-          >
-
-            <Shield
-              className="mx-auto mb-2"
-              size={28}
-            />
-
-            <span className="font-semibold">
-              Super Admin
-            </span>
-
-          </button>
-
-        </div>
-
-
-        {/* FORM */}
-        <form
-          onSubmit={handleLogin}
-          className="space-y-5"
+        {/* BACK */}
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-bs-muted hover:text-bs-text transition-all mb-6 text-sm"
         >
-
-          <div>
-
-            <label className="block mb-2 text-sm text-red-200/70">
-              Username
-            </label>
-
-            <input
-              type="text"
-              name="username"
-              required
-              onChange={handleChange}
-              placeholder="Masukkan Username"
-              className="w-full p-4 rounded-2xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none transition-all"
-            />
-
-          </div>
+          <ArrowLeft size={16} />
+          Kembali ke Beranda
+        </Link>
 
 
-          <div>
+        {/* CARD */}
+        <div className="bs-panel p-7 sm:p-9 relative overflow-hidden">
 
-            <label className="block mb-2 text-sm text-red-200/70">
-              Password
-            </label>
+          {/* garis aksen atas */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-bs-red to-transparent" />
 
-            <input
-              type="password"
-              name="password"
-              autoComplete="current-password"
-              required
-              onChange={handleChange}
-              placeholder="Masukkan Password"
-              className="w-full p-4 rounded-2xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none transition-all"
-            />
+          {/* LOGO */}
+          <div className="flex flex-col items-center text-center mb-8">
+
+            <div className="w-16 h-16 rounded-2xl bg-bs-red-deep border border-bs-red-dim flex items-center justify-center mb-4">
+              <ScanFace className="text-bs-red-bright" size={32} />
+            </div>
+
+            <h1 className="text-2xl font-black">
+              BioSentinel <span className="text-bs-red">AI</span>
+            </h1>
+
+            <p className="bs-mono text-[11px] text-bs-muted mt-1.5 tracking-wider">
+              SECURE ACCESS TERMINAL · V1.0
+            </p>
 
           </div>
 
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-4 rounded-2xl bg-red-700 hover:bg-red-800 transition-all font-bold text-lg shadow-lg shadow-red-950/40"
-          >
+          {/* PILIH ROLE */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
 
-            {
+            <button
+              type="button"
+              onClick={() => setRole('ADMIN')}
+              className={`p-4 rounded-xl border transition-all ${
+                role === 'ADMIN'
+                  ? 'bg-bs-red-deep border-bs-red-dim'
+                  : 'bg-bs-panel-2 border-bs-line hover:border-bs-faint'
+              }`}
+            >
+              <UserCog
+                className={`mx-auto mb-2 ${
+                  role === 'ADMIN' ? 'text-bs-red-bright' : 'text-bs-muted'
+                }`}
+                size={24}
+              />
+              <p className={`text-sm font-bold ${
+                role === 'ADMIN' ? 'text-bs-text' : 'text-bs-muted'
+              }`}>
+                Admin
+              </p>
+            </button>
 
-              loading
+            <button
+              type="button"
+              onClick={() => setRole('SUPER_ADMIN')}
+              className={`p-4 rounded-xl border transition-all ${
+                role === 'SUPER_ADMIN'
+                  ? 'bg-bs-red-deep border-bs-red-dim'
+                  : 'bg-bs-panel-2 border-bs-line hover:border-bs-faint'
+              }`}
+            >
+              <Shield
+                className={`mx-auto mb-2 ${
+                  role === 'SUPER_ADMIN' ? 'text-bs-red-bright' : 'text-bs-muted'
+                }`}
+                size={24}
+              />
+              <p className={`text-sm font-bold ${
+                role === 'SUPER_ADMIN' ? 'text-bs-text' : 'text-bs-muted'
+              }`}>
+                Super Admin
+              </p>
+            </button>
 
-                ? 'Loading...'
-
-                : `Login ${
-
-                    role ===
-                    'SUPER_ADMIN'
-
-                      ? 'Super Admin'
-
-                      : 'Admin'
-
-                  }`
-
-            }
-
-          </button>
-
-        </form>
+          </div>
 
 
-        {/* FOOTER */}
-        <div className="mt-8 text-center text-sm text-red-100/40 leading-relaxed">
+          {/* FORM */}
+          <form onSubmit={handleLogin} className="space-y-4">
 
-          Secure AI Biometric Governance System
+            {/* USERNAME */}
+            <div>
+              <label className="block mb-2 bs-mono text-[11px] text-bs-muted tracking-wider">
+                USERNAME
+              </label>
+              <div className="relative">
+                <User
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-bs-faint"
+                  size={17}
+                />
+                <input
+                  type="text"
+                  name="username"
+                  autoComplete="username"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  placeholder="Masukkan username"
+                  className="bs-input pl-11 pr-4 py-3.5 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* PASSWORD */}
+            <div>
+              <label className="block mb-2 bs-mono text-[11px] text-bs-muted tracking-wider">
+                PASSWORD
+              </label>
+              <div className="relative">
+                <Lock
+                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-bs-faint"
+                  size={17}
+                />
+                <input
+                  type="password"
+                  name="password"
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Masukkan password"
+                  className="bs-input pl-11 pr-4 py-3.5 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* SUBMIT */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bs-btn bs-btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={17} className="animate-spin" />
+                  Memverifikasi...
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={17} />
+                  Masuk Sistem
+                </>
+              )}
+            </button>
+
+          </form>
+
+
+          {/* FOOTER */}
+          <div className="mt-7 pt-5 border-t border-bs-line flex items-center justify-center gap-2">
+            <div className="bs-live-dot" />
+            <p className="bs-mono text-[10px] text-bs-muted tracking-wider">
+              ENCRYPTED CONNECTION · SECURE
+            </p>
+          </div>
 
         </div>
 
@@ -389,4 +293,4 @@ function LoginPage() {
 
 }
 
-export default LoginPage; 
+export default LoginPage;

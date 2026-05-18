@@ -28,14 +28,14 @@ const StatusBadge = ({ status }) => {
 
   const map = {
     HADIR: 'bg-green-900/40 text-green-400',
-    ABSEN: 'bg-red-900/40 text-red-400',
+    ABSEN: 'bg-red-900/40 text-bs-red-bright',
     IZIN: 'bg-blue-900/40 text-blue-300',
     CUTI: 'bg-purple-900/40 text-purple-300',
     SAKIT: 'bg-yellow-900/40 text-yellow-300'
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-[#101827] text-red-100/60'}`}>
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-bs-panel-2 text-bs-muted'}`}>
       {status}
     </span>
   );
@@ -370,11 +370,11 @@ const AdminAttendancePage = () => {
   // RENDER TABEL PRESENSI
   const renderTable = (rows, isLoading) => (
 
-    <div className="bg-[#0b1322] border border-red-950 rounded-3xl overflow-hidden">
+    <div className="bg-bs-panel border border-bs-line rounded-3xl overflow-hidden">
 
-      <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto"><table className="w-full text-left text-sm min-w-[720px]">
 
-        <thead className="bg-[#101827] text-red-100/60">
+        <thead className="bg-bs-panel-2 text-bs-muted">
           <tr>
             <th className="px-6 py-4">Nama User</th>
             <th className="px-6 py-4">Nomor Karyawan</th>
@@ -391,7 +391,7 @@ const AdminAttendancePage = () => {
           {isLoading ? (
 
             <tr>
-              <td colSpan={7} className="px-6 py-10 text-center text-red-100/40">
+              <td colSpan={7} className="px-6 py-6 sm:py-10 text-center text-bs-faint">
                 Memuat data...
               </td>
             </tr>
@@ -399,7 +399,7 @@ const AdminAttendancePage = () => {
           ) : rows.length === 0 ? (
 
             <tr>
-              <td colSpan={7} className="px-6 py-10 text-center text-red-100/40">
+              <td colSpan={7} className="px-6 py-6 sm:py-10 text-center text-bs-faint">
                 Tidak ada data presensi
               </td>
             </tr>
@@ -410,18 +410,18 @@ const AdminAttendancePage = () => {
 
               <tr
                 key={row.id}
-                className="border-t border-red-950/50 hover:bg-[#101827]/50"
+                className="border-t border-bs-line/50 hover:bg-bs-panel-2/50"
               >
 
                 <td className="px-6 py-4 font-semibold">
                   {row.user?.fullName || '-'}
                 </td>
 
-                <td className="px-6 py-4 text-red-100/70">
+                <td className="px-6 py-4 text-bs-muted">
                   {row.user?.identityNumber || '-'}
                 </td>
 
-                <td className="px-6 py-4 text-red-100/70">
+                <td className="px-6 py-4 text-bs-muted">
                   {row.user?.division || '-'}
                 </td>
 
@@ -429,11 +429,11 @@ const AdminAttendancePage = () => {
                   <StatusBadge status={row.status} />
                 </td>
 
-                <td className="px-6 py-4 text-red-100/70">
+                <td className="px-6 py-4 text-bs-muted">
                   {row.attendanceSession?.title || '-'}
                 </td>
 
-                <td className="px-6 py-4 text-red-100/60">
+                <td className="px-6 py-4 text-bs-muted">
                   {formatTime(row.createdAt)}
                 </td>
 
@@ -443,7 +443,7 @@ const AdminAttendancePage = () => {
 
                     <button
                       onClick={() => openManageModal(row)}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-[#101827] hover:bg-red-900/40 transition-all text-sm"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-bs-panel-2 hover:bg-bs-red-deep transition-all text-sm"
                     >
                       <Settings2 size={15} />
                       Kelola Status
@@ -451,7 +451,7 @@ const AdminAttendancePage = () => {
 
                   ) : (
 
-                    <span className="text-red-100/30 text-sm">—</span>
+                    <span className="text-bs-faint text-sm">—</span>
 
                   )}
 
@@ -465,7 +465,7 @@ const AdminAttendancePage = () => {
 
         </tbody>
 
-      </table>
+      </table></div>
 
     </div>
 
@@ -477,16 +477,16 @@ const AdminAttendancePage = () => {
     <div className="text-white">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
 
         <div>
 
-          <h1 className="text-3xl font-black flex items-center gap-3">
-            <Activity className="text-red-500" size={32} />
+          <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-3">
+            <Activity className="text-bs-red" size={32} />
             Presensi
           </h1>
 
-          <p className="text-red-100/50 mt-1 text-sm">
+          <p className="text-bs-muted mt-1 text-sm">
             Data presensi harian, riwayat & kelola status
           </p>
 
@@ -495,7 +495,7 @@ const AdminAttendancePage = () => {
         {/* CETAK LAPORAN */}
         <button
           onClick={handlePrint}
-          className="flex items-center gap-2 bg-[#101827] border border-red-950 hover:bg-red-950/30 transition-all px-5 py-3 rounded-2xl font-semibold"
+          className="flex items-center gap-2 bg-bs-panel-2 border border-bs-line hover:bg-bs-red-deep/30 transition-all px-5 py-3 rounded-2xl font-semibold"
         >
           <Printer size={18} />
           Cetak Laporan Presensi
@@ -510,7 +510,7 @@ const AdminAttendancePage = () => {
         <button
           onClick={() => setTab('daily')}
           className={`px-5 py-2.5 rounded-2xl font-semibold transition-all flex items-center gap-2 ${
-            tab === 'daily' ? 'bg-red-700' : 'bg-[#101827] border border-red-950'
+            tab === 'daily' ? 'bg-bs-red' : 'bg-bs-panel-2 border border-bs-line'
           }`}
         >
           <CalendarClock size={16} />
@@ -520,7 +520,7 @@ const AdminAttendancePage = () => {
         <button
           onClick={() => setTab('history')}
           className={`px-5 py-2.5 rounded-2xl font-semibold transition-all flex items-center gap-2 ${
-            tab === 'history' ? 'bg-red-700' : 'bg-[#101827] border border-red-950'
+            tab === 'history' ? 'bg-bs-red' : 'bg-bs-panel-2 border border-bs-line'
           }`}
         >
           <Filter size={16} />
@@ -540,10 +540,10 @@ const AdminAttendancePage = () => {
               (waktu belum habis). */}
           {sessionChecked && isCalculating ? (
 
-            <div className="bg-[#0b1322] border border-red-950 rounded-3xl p-16 text-center">
+            <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 sm:p-14 text-center">
 
               <Loader2
-                className="mx-auto mb-5 text-red-500 animate-spin"
+                className="mx-auto mb-5 text-bs-red animate-spin"
                 size={48}
               />
 
@@ -551,12 +551,12 @@ const AdminAttendancePage = () => {
                 Data Presensi Sedang Dihitung
               </h2>
 
-              <p className="text-red-100/50">
+              <p className="text-bs-muted">
                 Data presensi harian akan terbuka otomatis saat waktu presensi berakhir
               </p>
 
               {activeSession && (
-                <p className="text-red-100/40 text-sm mt-4">
+                <p className="text-bs-faint text-sm mt-4">
                   Sesi: {activeSession.title} · berakhir{' '}
                   {formatTime(activeSession.endTime)}
                 </p>
@@ -581,19 +581,19 @@ const AdminAttendancePage = () => {
         <div>
 
           {/* FILTER BAR */}
-          <div className="bg-[#0b1322] border border-red-950 rounded-3xl p-6 mb-6">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-6 mb-6">
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
 
               {/* PERIODE */}
               <div>
-                <label className="block mb-2 text-xs text-red-200/60">Filter</label>
+                <label className="block mb-2 text-xs text-bs-muted">Filter</label>
                 <select
                   value={filterForm.period}
                   onChange={(e) =>
                     setFilterForm({ ...filterForm, period: e.target.value })
                   }
-                  className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                 >
                   <option value="all">Semua</option>
                   <option value="yearly">Tahunan</option>
@@ -606,14 +606,14 @@ const AdminAttendancePage = () => {
               {(filterForm.period === 'yearly' ||
                 filterForm.period === 'monthly') && (
                 <div>
-                  <label className="block mb-2 text-xs text-red-200/60">Tahun</label>
+                  <label className="block mb-2 text-xs text-bs-muted">Tahun</label>
                   <input
                     type="number"
                     value={filterForm.year}
                     onChange={(e) =>
                       setFilterForm({ ...filterForm, year: e.target.value })
                     }
-                    className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                    className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                   />
                 </div>
               )}
@@ -621,13 +621,13 @@ const AdminAttendancePage = () => {
               {/* BULAN */}
               {filterForm.period === 'monthly' && (
                 <div>
-                  <label className="block mb-2 text-xs text-red-200/60">Bulan</label>
+                  <label className="block mb-2 text-xs text-bs-muted">Bulan</label>
                   <select
                     value={filterForm.month}
                     onChange={(e) =>
                       setFilterForm({ ...filterForm, month: e.target.value })
                     }
-                    className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                    className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                   >
                     {Array.from({ length: 12 }, (_, i) => (
                       <option key={i + 1} value={i + 1}>{i + 1}</option>
@@ -639,21 +639,21 @@ const AdminAttendancePage = () => {
               {/* TANGGAL */}
               {filterForm.period === 'date' && (
                 <div>
-                  <label className="block mb-2 text-xs text-red-200/60">Tanggal</label>
+                  <label className="block mb-2 text-xs text-bs-muted">Tanggal</label>
                   <input
                     type="date"
                     value={filterForm.date}
                     onChange={(e) =>
                       setFilterForm({ ...filterForm, date: e.target.value })
                     }
-                    className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                    className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                   />
                 </div>
               )}
 
               {/* DIVISI */}
               <div>
-                <label className="block mb-2 text-xs text-red-200/60">Per Divisi</label>
+                <label className="block mb-2 text-xs text-bs-muted">Per Divisi</label>
                 <input
                   type="text"
                   value={filterForm.division}
@@ -661,19 +661,19 @@ const AdminAttendancePage = () => {
                     setFilterForm({ ...filterForm, division: e.target.value })
                   }
                   placeholder="Semua divisi"
-                  className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                 />
               </div>
 
               {/* STATUS */}
               <div>
-                <label className="block mb-2 text-xs text-red-200/60">Status</label>
+                <label className="block mb-2 text-xs text-bs-muted">Status</label>
                 <select
                   value={filterForm.status}
                   onChange={(e) =>
                     setFilterForm({ ...filterForm, status: e.target.value })
                   }
-                  className="w-full p-3 rounded-xl bg-[#101827] border border-red-950 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-panel-2 border border-bs-line outline-none"
                 >
                   <option value="">Semua</option>
                   <option value="HADIR">Hadir</option>
@@ -688,7 +688,7 @@ const AdminAttendancePage = () => {
 
             <button
               onClick={fetchHistory}
-              className="mt-4 flex items-center gap-2 bg-red-700 hover:bg-red-800 transition-all px-5 py-3 rounded-2xl font-semibold"
+              className="mt-4 flex items-center gap-2 bg-bs-red hover:brightness-110 transition-all px-5 py-3 rounded-2xl font-semibold"
             >
               <Filter size={18} />
               Terapkan Filter
@@ -708,31 +708,31 @@ const AdminAttendancePage = () => {
 
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-6">
 
-          <div className="bg-[#0b1322] border border-red-950 rounded-3xl p-8 w-full max-w-md relative">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 w-full max-w-md relative">
 
             <button
               onClick={closeManageModal}
-              className="absolute top-5 right-5 text-red-300/60 hover:text-white"
+              className="absolute top-5 right-5 text-bs-muted/60 hover:text-white"
             >
               <X size={22} />
             </button>
 
             <h2 className="text-2xl font-black mb-1">Kelola Status</h2>
 
-            <p className="text-red-100/50 text-sm mb-6">
+            <p className="text-bs-muted text-sm mb-6">
               {modalRow.user?.fullName} — status saat ini: ABSEN
             </p>
 
             <div className="space-y-4">
 
               <div>
-                <label className="block mb-2 text-sm text-red-200/70">
+                <label className="block mb-2 text-sm text-bs-muted">
                   Ubah Status Menjadi
                 </label>
                 <select
                   value={modalStatus}
                   onChange={(e) => setModalStatus(e.target.value)}
-                  className="w-full p-3 rounded-2xl bg-[#101827] border border-red-950 outline-none"
+                  className="w-full p-3 rounded-2xl bg-bs-panel-2 border border-bs-line outline-none"
                 >
                   <option value="IZIN">Izin</option>
                   <option value="CUTI">Cuti</option>
@@ -746,7 +746,7 @@ const AdminAttendancePage = () => {
 
               <button
                 onClick={closeManageModal}
-                className="flex-1 py-3 rounded-2xl bg-[#101827] border border-red-950 hover:bg-red-950/30 transition-all"
+                className="flex-1 py-3 rounded-2xl bg-bs-panel-2 border border-bs-line hover:bg-bs-red-deep/30 transition-all"
               >
                 Batal
               </button>
@@ -754,7 +754,7 @@ const AdminAttendancePage = () => {
               <button
                 onClick={handleManageSubmit}
                 disabled={submitting}
-                className="flex-1 py-3 rounded-2xl bg-red-700 hover:bg-red-800 transition-all font-bold disabled:opacity-50"
+                className="flex-1 py-3 rounded-2xl bg-bs-red hover:brightness-110 transition-all font-bold disabled:opacity-50"
               >
                 {submitting ? 'Menyimpan...' : 'Simpan'}
               </button>

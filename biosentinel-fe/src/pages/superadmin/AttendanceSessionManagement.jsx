@@ -126,15 +126,15 @@ const AttendanceSessionManagement = () => {
 
   return (
 
-    <div className="min-h-screen bg-[#020617] text-white p-10">
+    <div className="text-white">
 
       {/* HEADER */}
 
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
 
         <div>
 
-          <h1 className="text-5xl font-black text-red-500">
+          <h1 className="text-2xl sm:text-3xl font-black text-bs-red">
 
             Attendance Session
 
@@ -152,7 +152,7 @@ const AttendanceSessionManagement = () => {
           onClick={() =>
             setShowModal(true)
           }
-          className="bg-red-600 hover:bg-red-700 transition-all rounded-2xl px-8 py-4 font-bold flex items-center gap-3"
+          className="bg-bs-red hover:bg-bs-red transition-all rounded-2xl px-8 py-4 font-bold flex items-center gap-3"
         >
           <Plus size={20} />
 
@@ -164,9 +164,9 @@ const AttendanceSessionManagement = () => {
 
       {/* STATS */}
 
-      <div className="grid grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
-        <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
 
           <div className="flex items-center justify-between">
 
@@ -178,7 +178,7 @@ const AttendanceSessionManagement = () => {
 
               </p>
 
-              <h2 className="text-4xl font-black mt-2">
+              <h2 className="text-2xl sm:text-3xl font-black mt-2">
 
                 {activeSession ? 1 : 0}
 
@@ -187,7 +187,7 @@ const AttendanceSessionManagement = () => {
             </div>
 
             <Clock
-              className="text-red-500"
+              className="text-bs-red"
               size={40}
             />
 
@@ -195,7 +195,7 @@ const AttendanceSessionManagement = () => {
 
         </div>
 
-        <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
 
           <div className="flex items-center justify-between">
 
@@ -207,7 +207,7 @@ const AttendanceSessionManagement = () => {
 
               </p>
 
-              <h2 className="text-4xl font-black mt-2">
+              <h2 className="text-2xl sm:text-3xl font-black mt-2">
 
                 {activeSession ? 1 : 0}
 
@@ -224,7 +224,7 @@ const AttendanceSessionManagement = () => {
 
         </div>
 
-        <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
 
           <div className="flex items-center justify-between">
 
@@ -236,7 +236,7 @@ const AttendanceSessionManagement = () => {
 
               </p>
 
-              <h2 className="text-4xl font-black mt-2">
+              <h2 className="text-2xl sm:text-3xl font-black mt-2">
 
                 AI
 
@@ -253,7 +253,7 @@ const AttendanceSessionManagement = () => {
 
         </div>
 
-        <div className="bg-[#071226] border border-red-900 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
 
           <div className="flex items-center justify-between">
 
@@ -265,7 +265,7 @@ const AttendanceSessionManagement = () => {
 
               </p>
 
-              <h2 className="text-4xl font-black mt-2">
+              <h2 className="text-2xl sm:text-3xl font-black mt-2">
 
                 LIVE
 
@@ -286,9 +286,9 @@ const AttendanceSessionManagement = () => {
 
       {/* TABLE */}
 
-      <div className="bg-[#071226] border border-red-900 rounded-3xl overflow-hidden">
+      <div className="bg-bs-panel border border-bs-line rounded-3xl overflow-hidden">
 
-        <table className="w-full">
+        <div className="overflow-x-auto"><table className="w-full min-w-[720px]">
 
           <thead className="bg-[#220808]">
 
@@ -338,7 +338,7 @@ const AttendanceSessionManagement = () => {
 
             {activeSession ? (
 
-              <tr className="border-t border-red-900">
+              <tr className="border-t border-bs-line">
 
                 <td className="p-6">
 
@@ -380,7 +380,7 @@ const AttendanceSessionManagement = () => {
 
                 <td className="p-6">
 
-                  <button className="bg-red-600 px-4 py-2 rounded-xl">
+                  <button className="bg-bs-red px-4 py-2 rounded-xl">
 
                     End Session
 
@@ -396,7 +396,7 @@ const AttendanceSessionManagement = () => {
 
                 <td
                   colSpan="6"
-                  className="text-center py-10 text-gray-400"
+                  className="text-center py-6 sm:py-10 text-gray-400"
                 >
 
                   No Active Attendance Session
@@ -409,7 +409,7 @@ const AttendanceSessionManagement = () => {
 
           </tbody>
 
-        </table>
+        </table></div>
 
       </div>
 
@@ -419,9 +419,9 @@ const AttendanceSessionManagement = () => {
 
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
 
-          <div className="bg-[#071226] border border-red-900 rounded-3xl p-10 w-[600px]">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-5 sm:p-8 w-[600px]">
 
-            <h2 className="text-3xl font-black text-red-500 mb-8">
+            <h2 className="text-3xl font-black text-bs-red mb-8">
 
               Create Attendance Session
 
@@ -435,7 +435,7 @@ const AttendanceSessionManagement = () => {
                 value={formData.title}
                 onChange={handleChange}
                 placeholder="Session Title"
-                className="w-full bg-[#140404] border border-red-900 rounded-2xl px-6 py-4"
+                className="w-full bg-[#140404] border border-bs-line rounded-2xl px-6 py-4"
               />
 
               <input
@@ -443,7 +443,7 @@ const AttendanceSessionManagement = () => {
                 name="startTime"
                 value={formData.startTime}
                 onChange={handleChange}
-                className="w-full bg-[#140404] border border-red-900 rounded-2xl px-6 py-4"
+                className="w-full bg-[#140404] border border-bs-line rounded-2xl px-6 py-4"
               />
 
               <input
@@ -451,14 +451,14 @@ const AttendanceSessionManagement = () => {
                 name="endTime"
                 value={formData.endTime}
                 onChange={handleChange}
-                className="w-full bg-[#140404] border border-red-900 rounded-2xl px-6 py-4"
+                className="w-full bg-[#140404] border border-bs-line rounded-2xl px-6 py-4"
               />
 
               <div className="flex gap-4 pt-4">
 
                 <button
                   onClick={handleCreateSession}
-                  className="flex-1 bg-red-600 hover:bg-red-700 rounded-2xl py-4 font-bold"
+                  className="flex-1 bg-bs-red hover:bg-bs-red rounded-2xl py-4 font-bold"
                 >
 
                   Create Session

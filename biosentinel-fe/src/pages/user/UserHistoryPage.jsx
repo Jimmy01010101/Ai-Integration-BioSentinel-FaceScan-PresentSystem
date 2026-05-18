@@ -23,15 +23,15 @@ import api from '../../services/api';
 const StatusBadge = ({ status }) => {
 
   const map = {
-    HADIR: 'bg-green-900/40 text-green-400',
-    ABSEN: 'bg-red-900/40 text-red-400',
+    HADIR: 'bg-green-900/40 text-bs-ok',
+    ABSEN: 'bg-red-900/40 text-bs-red-bright',
     IZIN: 'bg-blue-900/40 text-blue-300',
     CUTI: 'bg-purple-900/40 text-purple-300',
     SAKIT: 'bg-yellow-900/40 text-yellow-300'
   };
 
   return (
-    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-[#160909] text-red-100/60'}`}>
+    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${map[status] || 'bg-bs-abyss text-bs-muted'}`}>
       {status}
     </span>
   );
@@ -135,17 +135,17 @@ function UserHistoryPage() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-black via-[#180909] to-[#2b0d0d] text-white px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-black via-[#180909] to-[#2b0d0d] text-white px-4 sm:px-6 py-6 sm:py-10">
 
       {/* GLOW */}
-      <div className="fixed w-[500px] h-[500px] bg-red-700/10 blur-[150px] rounded-full top-[-150px] right-[-150px] pointer-events-none" />
+      <div className="fixed w-[500px] h-[500px] bg-bs-red/10 blur-[150px] rounded-full top-[-150px] right-[-150px] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto relative z-10">
 
         {/* BACK */}
         <Link
           to="/attendance"
-          className="inline-flex items-center gap-2 text-red-300 hover:text-white transition-all mb-8"
+          className="inline-flex items-center gap-2 text-bs-muted hover:text-white transition-all mb-8"
         >
           <ArrowLeft size={18} />
           Kembali ke Presensi
@@ -155,12 +155,12 @@ function UserHistoryPage() {
         {/* HEADER */}
         <div className="mb-8">
 
-          <h1 className="text-4xl font-black text-red-500 mb-2 flex items-center gap-3">
+          <h1 className="text-2xl sm:text-4xl font-black text-bs-red mb-2 flex items-center gap-3">
             <ClipboardList size={36} />
             Riwayat Presensi
           </h1>
 
-          <p className="text-red-100/60">
+          <p className="text-bs-muted">
             Masukkan Nomor Karyawan untuk melihat riwayat presensi Anda
           </p>
 
@@ -168,19 +168,19 @@ function UserHistoryPage() {
 
 
         {/* FORM PENCARIAN */}
-        <div className="bg-black/40 backdrop-blur-xl border border-red-950 rounded-3xl p-8 mb-8">
+        <div className="bg-bs-panel backdrop-blur-xl border border-bs-line rounded-3xl p-8 mb-8">
 
           {/* NOMOR KARYAWAN */}
           <div className="mb-5">
 
-            <label className="block mb-2 text-sm text-red-200/70">
+            <label className="block mb-2 text-sm text-bs-muted">
               Nomor Karyawan
             </label>
 
             <div className="relative">
 
               <IdCard
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-red-300/50"
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-bs-muted/50"
                 size={18}
               />
 
@@ -189,7 +189,7 @@ function UserHistoryPage() {
                 value={identityNumber}
                 onChange={(e) => setIdentityNumber(e.target.value)}
                 placeholder="Masukkan Nomor Karyawan"
-                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none transition-all"
+                className="w-full pl-12 pr-4 py-4 rounded-2xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none transition-all"
               />
 
             </div>
@@ -198,19 +198,19 @@ function UserHistoryPage() {
 
 
           {/* FILTER */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+          <div className="grid grid-cols-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
 
             {/* JENIS FILTER */}
             <div>
 
-              <label className="block mb-2 text-xs text-red-200/60">
+              <label className="block mb-2 text-xs text-bs-muted">
                 Filter
               </label>
 
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="w-full p-3 rounded-xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none"
+                className="w-full p-3 rounded-xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none"
               >
                 <option value="weekly">Mingguan</option>
                 <option value="monthly">Bulanan</option>
@@ -225,7 +225,7 @@ function UserHistoryPage() {
 
               <div>
 
-                <label className="block mb-2 text-xs text-red-200/60">
+                <label className="block mb-2 text-xs text-bs-muted">
                   Tahun
                 </label>
 
@@ -233,7 +233,7 @@ function UserHistoryPage() {
                   type="number"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
               </div>
@@ -245,14 +245,14 @@ function UserHistoryPage() {
 
               <div>
 
-                <label className="block mb-2 text-xs text-red-200/60">
+                <label className="block mb-2 text-xs text-bs-muted">
                   Bulan
                 </label>
 
                 <select
                   value={month}
                   onChange={(e) => setMonth(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none"
                 >
                   {Array.from({ length: 12 }, (_, i) => (
                     <option key={i + 1} value={i + 1}>
@@ -270,7 +270,7 @@ function UserHistoryPage() {
 
               <div>
 
-                <label className="block mb-2 text-xs text-red-200/60">
+                <label className="block mb-2 text-xs text-bs-muted">
                   Tanggal
                 </label>
 
@@ -278,7 +278,7 @@ function UserHistoryPage() {
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
               </div>
@@ -292,7 +292,7 @@ function UserHistoryPage() {
           <button
             onClick={handleSearch}
             disabled={loading}
-            className="w-full md:w-auto flex items-center justify-center gap-2 bg-red-700 hover:bg-red-800 transition-all px-8 py-4 rounded-2xl font-bold disabled:opacity-50"
+            className="w-full md:w-auto flex items-center justify-center gap-2 bg-bs-red hover:brightness-110 transition-all px-8 py-4 rounded-2xl font-bold disabled:opacity-50"
           >
             <Search size={18} />
             {loading ? 'Memuat...' : 'Lihat Riwayat'}
@@ -304,7 +304,7 @@ function UserHistoryPage() {
         {/* HASIL */}
         {result && (
 
-          <div className="bg-black/40 backdrop-blur-xl border border-red-950 rounded-3xl p-8">
+          <div className="bg-bs-panel backdrop-blur-xl border border-bs-line rounded-3xl p-8">
 
             {/* INFO USER */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -313,12 +313,12 @@ function UserHistoryPage() {
                 <h2 className="text-2xl font-black">
                   {result.user?.fullName}
                 </h2>
-                <p className="text-red-100/50 text-sm">
+                <p className="text-bs-muted text-sm">
                   {result.user?.identityNumber} · {result.user?.division}
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-red-300/70">
+              <div className="flex items-center gap-2 text-bs-muted/70">
                 <CalendarSearch size={18} />
                 <span className="capitalize">{result.filter}</span>
               </div>
@@ -327,12 +327,12 @@ function UserHistoryPage() {
 
 
             {/* RINGKASAN */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
 
               {[
                 { label: 'Total', value: result.summary?.total, color: 'text-white' },
-                { label: 'Hadir', value: result.summary?.hadir, color: 'text-green-400' },
-                { label: 'Absen', value: result.summary?.absen, color: 'text-red-400' },
+                { label: 'Hadir', value: result.summary?.hadir, color: 'text-bs-ok' },
+                { label: 'Absen', value: result.summary?.absen, color: 'text-bs-red-bright' },
                 { label: 'Izin', value: result.summary?.izin, color: 'text-blue-300' },
                 { label: 'Cuti', value: result.summary?.cuti, color: 'text-purple-300' },
                 { label: 'Sakit', value: result.summary?.sakit, color: 'text-yellow-300' }
@@ -340,9 +340,9 @@ function UserHistoryPage() {
 
                 <div
                   key={s.label}
-                  className="bg-[#160909] border border-red-950 rounded-2xl p-4 text-center"
+                  className="bg-bs-abyss border border-bs-line rounded-2xl p-4 text-center"
                 >
-                  <p className="text-red-100/50 text-xs mb-1">{s.label}</p>
+                  <p className="text-bs-muted text-xs mb-1">{s.label}</p>
                   <p className={`text-2xl font-black ${s.color}`}>
                     {s.value ?? 0}
                   </p>
@@ -354,11 +354,11 @@ function UserHistoryPage() {
 
 
             {/* TABEL RIWAYAT */}
-            <div className="border border-red-950 rounded-2xl overflow-hidden">
+            <div className="border border-bs-line rounded-2xl overflow-hidden">
 
-              <table className="w-full text-left text-sm">
+              <div className="overflow-x-auto"><table className="w-full text-left text-sm min-w-[560px]">
 
-                <thead className="bg-[#160909] text-red-100/60">
+                <thead className="bg-bs-abyss text-bs-muted">
                   <tr>
                     <th className="px-5 py-3">Sesi</th>
                     <th className="px-5 py-3">Status</th>
@@ -371,7 +371,7 @@ function UserHistoryPage() {
                   {result.data?.length === 0 ? (
 
                     <tr>
-                      <td colSpan={3} className="px-5 py-10 text-center text-red-100/40">
+                      <td colSpan={3} className="px-5 py-6 sm:py-10 text-center text-bs-faint">
                         Tidak ada riwayat presensi pada periode ini
                       </td>
                     </tr>
@@ -382,7 +382,7 @@ function UserHistoryPage() {
 
                       <tr
                         key={item.id}
-                        className="border-t border-red-950/50"
+                        className="border-t border-bs-line/50"
                       >
 
                         <td className="px-5 py-3 font-semibold">
@@ -393,7 +393,7 @@ function UserHistoryPage() {
                           <StatusBadge status={item.status} />
                         </td>
 
-                        <td className="px-5 py-3 text-red-100/60">
+                        <td className="px-5 py-3 text-bs-muted">
                           {formatTime(item.createdAt)}
                         </td>
 
@@ -405,7 +405,7 @@ function UserHistoryPage() {
 
                 </tbody>
 
-              </table>
+              </table></div>
 
             </div>
 

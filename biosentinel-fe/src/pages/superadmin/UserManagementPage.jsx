@@ -425,15 +425,15 @@ const UserManagementPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-white p-10">
+    <div className="text-white">
 
       {/* HEADER */}
 
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
 
         <div>
 
-          <h1 className="text-5xl font-black text-red-500">
+          <h1 className="text-2xl sm:text-3xl font-black text-bs-red">
             User Management
           </h1>
 
@@ -445,9 +445,9 @@ const UserManagementPage = () => {
 
         <div className="flex items-center gap-4">
 
-          <div className="bg-[#071129] border border-red-900 rounded-2xl px-8 py-4 flex items-center gap-4">
+          <div className="bg-bs-panel border border-bs-line rounded-2xl px-8 py-4 flex items-center gap-4">
 
-            <Users className="text-red-500" />
+            <Users className="text-bs-red" />
 
             <div>
 
@@ -465,7 +465,7 @@ const UserManagementPage = () => {
 
           <button
             onClick={openModal}
-            className="bg-red-600 hover:bg-red-700 transition-all px-6 py-4 rounded-2xl font-semibold flex items-center gap-3"
+            className="bg-bs-red hover:brightness-110 transition-all px-6 py-4 rounded-2xl font-semibold flex items-center gap-3"
           >
 
             <Plus size={20} />
@@ -480,11 +480,11 @@ const UserManagementPage = () => {
 
       {/* SEARCH */}
 
-      <div className="bg-[#071129] border border-red-900 rounded-3xl p-6 mb-8">
+      <div className="bg-bs-panel border border-bs-line rounded-3xl p-6 mb-8">
 
-        <div className="flex items-center bg-[#140303] border border-red-900 rounded-2xl px-5">
+        <div className="flex items-center bg-bs-abyss border border-bs-line rounded-2xl px-5">
 
-          <Search className="text-red-500" />
+          <Search className="text-bs-red" />
 
           <input
             type="text"
@@ -502,9 +502,9 @@ const UserManagementPage = () => {
 
       {/* TABLE */}
 
-      <div className="bg-[#071129] border border-red-900 rounded-3xl overflow-hidden">
+      <div className="bg-bs-panel border border-bs-line rounded-3xl overflow-hidden">
 
-        <div className="grid grid-cols-6 gap-4 px-6 py-5 border-b border-red-900 bg-[#140303] font-semibold text-white">
+        <div className="overflow-x-auto"><div className="min-w-[760px]"><div className="grid grid-cols-6 gap-4 px-6 py-5 border-b border-bs-line bg-bs-abyss font-semibold text-white">
 
           <div>Employee</div>
           <div>Identity</div>
@@ -517,13 +517,13 @@ const UserManagementPage = () => {
 
         {loading ? (
 
-          <div className="p-10 text-center text-gray-400">
+          <div className="p-5 sm:p-8 text-center text-gray-400">
             Loading users...
           </div>
 
         ) : filteredUsers.length === 0 ? (
 
-          <div className="p-10 text-center text-gray-400">
+          <div className="p-5 sm:p-8 text-center text-gray-400">
             No users found
           </div>
 
@@ -533,12 +533,12 @@ const UserManagementPage = () => {
 
             <div
               key={user.id}
-              className="grid grid-cols-6 gap-4 px-6 py-5 border-b border-red-950 items-center"
+              className="grid grid-cols-6 gap-4 px-6 py-5 border-b border-bs-line items-center"
             >
 
               <div className="flex items-center gap-4">
 
-                <div className="w-14 h-14 rounded-2xl overflow-hidden border border-red-800">
+                <div className="w-14 h-14 rounded-2xl overflow-hidden border border-bs-line">
 
                   <img
                     src={`http://localhost:5050/${user.faceImage}`}
@@ -588,7 +588,7 @@ const UserManagementPage = () => {
 
                 ) : (
 
-                  <div className="inline-flex items-center gap-2 bg-red-950 border border-red-700 text-red-400 px-4 py-2 rounded-xl text-sm">
+                  <div className="inline-flex items-center gap-2 bg-bs-red-deep border border-bs-red-dim text-bs-red-bright px-4 py-2 rounded-xl text-sm">
                     Disabled
                   </div>
 
@@ -602,7 +602,7 @@ const UserManagementPage = () => {
                   onClick={() =>
                     handleToggleStatus(user.id)
                   }
-                  className="w-11 h-11 rounded-xl bg-[#140303] border border-red-900 flex items-center justify-center hover:bg-red-950 transition-all"
+                  className="w-11 h-11 rounded-xl bg-bs-abyss border border-bs-line flex items-center justify-center hover:bg-bs-red-deep transition-all"
                 >
 
                   {user.isActive ? (
@@ -615,7 +615,7 @@ const UserManagementPage = () => {
 
                 <button
                   onClick={() => fetchUsers()}
-                  className="w-11 h-11 rounded-xl bg-[#140303] border border-red-900 flex items-center justify-center hover:bg-red-950 transition-all"
+                  className="w-11 h-11 rounded-xl bg-bs-abyss border border-bs-line flex items-center justify-center hover:bg-bs-red-deep transition-all"
                 >
 
                   <RefreshCcw size={18} />
@@ -626,7 +626,7 @@ const UserManagementPage = () => {
                   onClick={() =>
                     handleDelete(user.id)
                   }
-                  className="w-11 h-11 rounded-xl bg-[#140303] border border-red-900 flex items-center justify-center hover:bg-red-950 transition-all"
+                  className="w-11 h-11 rounded-xl bg-bs-abyss border border-bs-line flex items-center justify-center hover:bg-bs-red-deep transition-all"
                 >
 
                   <Trash2 size={18} />
@@ -640,13 +640,14 @@ const UserManagementPage = () => {
 
         )}
 
+        </div></div>
       </div>
 
       {/* FOOTER */}
 
-      <div className="mt-10 w-44 h-24 bg-[#071129] border border-red-900 rounded-3xl p-5">
+      <div className="mt-8 w-full sm:w-56 bg-bs-panel border border-bs-line rounded-3xl p-5">
 
-        <div className="flex items-center gap-3 text-red-500 mb-3">
+        <div className="flex items-center gap-3 text-bs-red mb-3">
 
           <ShieldCheck />
 
@@ -668,22 +669,22 @@ const UserManagementPage = () => {
 
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-6">
 
-          <div className="w-full max-w-5xl bg-[#071129] border border-red-900 rounded-3xl p-8 relative">
+          <div className="w-full max-w-5xl bg-bs-panel border border-bs-line rounded-3xl p-8 relative">
 
             <button
               onClick={closeModal}
-              className="absolute top-5 right-5 w-11 h-11 rounded-xl bg-red-950 flex items-center justify-center"
+              className="absolute top-5 right-5 w-11 h-11 rounded-xl bg-bs-red-deep flex items-center justify-center"
             >
 
               <X />
 
             </button>
 
-            <h2 className="text-3xl font-black text-red-500 mb-8">
+            <h2 className="text-3xl font-black text-bs-red mb-8">
               Add Biometric User
             </h2>
 
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
 
               {/* FORM */}
 
@@ -700,7 +701,7 @@ const UserManagementPage = () => {
                         e.target.value
                     })
                   }
-                  className="w-full bg-[#140303] border border-red-900 rounded-2xl px-5 py-4 outline-none"
+                  className="w-full bg-bs-abyss border border-bs-line rounded-2xl px-5 py-4 outline-none"
                 />
 
                 <input
@@ -714,7 +715,7 @@ const UserManagementPage = () => {
                         e.target.value
                     })
                   }
-                  className="w-full bg-[#140303] border border-red-900 rounded-2xl px-5 py-4 outline-none"
+                  className="w-full bg-bs-abyss border border-bs-line rounded-2xl px-5 py-4 outline-none"
                 />
 
                 <input
@@ -728,13 +729,13 @@ const UserManagementPage = () => {
                         e.target.value
                     })
                   }
-                  className="w-full bg-[#140303] border border-red-900 rounded-2xl px-5 py-4 outline-none"
+                  className="w-full bg-bs-abyss border border-bs-line rounded-2xl px-5 py-4 outline-none"
                 />
 
                 <button
                   onClick={handleCreateUser}
                   disabled={submitting}
-                  className="w-full bg-red-600 hover:bg-red-700 transition-all py-4 rounded-2xl font-bold"
+                  className="w-full bg-bs-red hover:brightness-110 transition-all py-4 rounded-2xl font-bold"
                 >
 
                   {submitting
@@ -749,7 +750,7 @@ const UserManagementPage = () => {
 
               <div>
 
-                <div className="bg-black rounded-3xl overflow-hidden border border-red-900 h-[400px] relative">
+                <div className="bg-black rounded-3xl overflow-hidden border border-bs-line h-[400px] relative">
 
                   {capturedImage ? (
 
@@ -774,7 +775,7 @@ const UserManagementPage = () => {
 
                     <button
                       onClick={captureFace}
-                      className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-red-600 hover:bg-red-700 transition-all w-16 h-16 rounded-full flex items-center justify-center"
+                      className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-bs-red hover:brightness-110 transition-all w-16 h-16 rounded-full flex items-center justify-center"
                     >
 
                       <Camera />

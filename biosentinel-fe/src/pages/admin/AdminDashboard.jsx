@@ -98,7 +98,7 @@ function AdminDashboard() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-red-700 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <div className="w-16 h-16 border-4 border-bs-red-dim border-t-transparent rounded-full animate-spin mx-auto mb-6" />
           <p className="text-red-200">Memuat Dashboard Admin...</p>
         </div>
       </div>
@@ -113,11 +113,11 @@ function AdminDashboard() {
       {/* HEADER */}
       <div className="mb-10">
 
-        <h1 className="text-4xl font-black text-red-500 mb-2">
+        <h1 className="text-2xl sm:text-2xl sm:text-3xl font-black text-bs-red mb-2">
           Admin Dashboard
         </h1>
 
-        <p className="text-red-100/60">
+        <p className="text-bs-muted">
           Pemantauan presensi & pusat operasional
         </p>
 
@@ -125,56 +125,56 @@ function AdminDashboard() {
 
 
       {/* STATS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
 
         {/* TOTAL USER */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-red-100/60 text-sm mb-2">Total User Aktif</p>
-              <h2 className="text-4xl font-black">{summary?.totalUsers ?? 0}</h2>
+              <p className="text-bs-muted text-sm mb-2">Total User Aktif</p>
+              <h2 className="text-2xl sm:text-2xl sm:text-3xl font-black">{summary?.totalUsers ?? 0}</h2>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-              <Users className="text-red-500" size={28} />
+            <div className="w-14 h-14 rounded-2xl bg-bs-red-deep border border-bs-line flex items-center justify-center">
+              <Users className="text-bs-red" size={28} />
             </div>
           </div>
         </div>
 
         {/* HADIR */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-red-100/60 text-sm mb-2">Total Hadir</p>
-              <h2 className="text-4xl font-black">{summary?.hadir ?? 0}</h2>
+              <p className="text-bs-muted text-sm mb-2">Total Hadir</p>
+              <h2 className="text-2xl sm:text-2xl sm:text-3xl font-black">{summary?.hadir ?? 0}</h2>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-              <UserCheck className="text-red-500" size={28} />
+            <div className="w-14 h-14 rounded-2xl bg-bs-red-deep border border-bs-line flex items-center justify-center">
+              <UserCheck className="text-bs-red" size={28} />
             </div>
           </div>
         </div>
 
         {/* ABSEN */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-red-100/60 text-sm mb-2">Total Absen</p>
-              <h2 className="text-4xl font-black">{summary?.absen ?? 0}</h2>
+              <p className="text-bs-muted text-sm mb-2">Total Absen</p>
+              <h2 className="text-2xl sm:text-2xl sm:text-3xl font-black">{summary?.absen ?? 0}</h2>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-              <Activity className="text-red-500" size={28} />
+            <div className="w-14 h-14 rounded-2xl bg-bs-red-deep border border-bs-line flex items-center justify-center">
+              <Activity className="text-bs-red" size={28} />
             </div>
           </div>
         </div>
 
         {/* SPOOF */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-6">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-red-100/60 text-sm mb-2">Deteksi Spoof</p>
-              <h2 className="text-4xl font-black">{summary?.spoof ?? 0}</h2>
+              <p className="text-bs-muted text-sm mb-2">Deteksi Spoof</p>
+              <h2 className="text-2xl sm:text-2xl sm:text-3xl font-black">{summary?.spoof ?? 0}</h2>
             </div>
-            <div className="w-14 h-14 rounded-2xl bg-red-950 border border-red-800 flex items-center justify-center">
-              <ShieldAlert className="text-red-500" size={28} />
+            <div className="w-14 h-14 rounded-2xl bg-bs-red-deep border border-bs-line flex items-center justify-center">
+              <ShieldAlert className="text-bs-red" size={28} />
             </div>
           </div>
         </div>
@@ -183,31 +183,31 @@ function AdminDashboard() {
 
 
       {/* SESSION INFO */}
-      <div className="bg-black/40 border border-red-950 rounded-3xl p-8 mb-8">
+      <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 mb-8">
 
         <div className="flex items-center gap-3 mb-6">
-          <CalendarClock className="text-red-500" size={26} />
+          <CalendarClock className="text-bs-red" size={26} />
           <h2 className="text-2xl font-bold">Sesi Presensi Aktif</h2>
         </div>
 
         {session ? (
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 grid-cols-1 sm:grid-cols-3 gap-5">
 
-            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
-              <p className="text-red-100/50 text-sm mb-1">Judul</p>
+            <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5">
+              <p className="text-bs-muted text-sm mb-1">Judul</p>
               <p className="font-bold">{session.title}</p>
             </div>
 
-            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
-              <p className="text-red-100/50 text-sm mb-1">Mulai</p>
+            <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5">
+              <p className="text-bs-muted text-sm mb-1">Mulai</p>
               <p className="font-bold">
                 {formatTime(session.startTime)}
               </p>
             </div>
 
-            <div className="bg-[#160909] border border-red-950 rounded-2xl p-5">
-              <p className="text-red-100/50 text-sm mb-1">Berakhir</p>
+            <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5">
+              <p className="text-bs-muted text-sm mb-1">Berakhir</p>
               <p className="font-bold">
                 {formatTime(session.endTime)}
               </p>
@@ -217,7 +217,7 @@ function AdminDashboard() {
 
         ) : (
 
-          <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+          <div className="bg-bs-abyss border border-bs-line rounded-2xl p-6 text-center text-bs-muted">
             Tidak ada sesi presensi yang aktif
           </div>
 
@@ -227,16 +227,16 @@ function AdminDashboard() {
 
 
       {/* GRID: PRESENCE BOARD + SPOOF */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 grid-cols-1 sm:grid-cols-2 gap-6">
 
         {/* PRESENCE BOARD */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-8">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-8">
 
           <div className="flex items-center justify-between mb-6">
 
             <div>
               <h2 className="text-2xl font-bold mb-1">Daftar Pengguna</h2>
-              <p className="text-red-100/50 text-sm">
+              <p className="text-bs-muted text-sm">
                 Status presensi terbaru tiap user
               </p>
             </div>
@@ -261,12 +261,12 @@ function AdminDashboard() {
 
                   <div
                     key={item.id}
-                    className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between"
+                    className="bg-bs-abyss border border-bs-line rounded-2xl p-5 flex items-center justify-between"
                   >
 
                     <div>
                       <h3 className="font-bold">{item.fullName}</h3>
-                      <p className="text-red-100/50 text-sm">
+                      <p className="text-bs-muted text-sm">
                         {item.identityNumber} · {item.division}
                       </p>
                     </div>
@@ -275,8 +275,8 @@ function AdminDashboard() {
                       status === 'HADIR'
                         ? 'bg-green-900/40 text-green-400'
                         : status === 'ABSEN'
-                          ? 'bg-red-900/40 text-red-400'
-                          : 'bg-[#101827] text-red-100/60'
+                          ? 'bg-red-900/40 text-bs-red-bright'
+                          : 'bg-bs-panel-2 text-bs-muted'
                     }`}>
                       {status}
                     </span>
@@ -289,7 +289,7 @@ function AdminDashboard() {
 
             ) : (
 
-              <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+              <div className="bg-bs-abyss border border-bs-line rounded-2xl p-6 text-center text-bs-muted">
                 Belum ada data pengguna
               </div>
 
@@ -301,10 +301,10 @@ function AdminDashboard() {
 
 
         {/* SPOOF LOGS */}
-        <div className="bg-black/40 border border-red-950 rounded-3xl p-8">
+        <div className="bg-bs-panel border border-bs-line rounded-3xl p-8">
 
           <div className="flex items-center gap-3 mb-6">
-            <ShieldAlert className="text-red-500" size={24} />
+            <ShieldAlert className="text-bs-red" size={24} />
             <h2 className="text-2xl font-bold">Deteksi Spoof Terbaru</h2>
           </div>
 
@@ -316,14 +316,14 @@ function AdminDashboard() {
 
                 <div
                   key={log.id}
-                  className="bg-[#160909] border border-red-950 rounded-2xl p-5"
+                  className="bg-bs-abyss border border-bs-line rounded-2xl p-5"
                 >
 
-                  <p className="font-semibold text-red-400">
+                  <p className="font-semibold text-bs-red-bright">
                     {log.reason}
                   </p>
 
-                  <p className="text-red-100/40 text-sm mt-1">
+                  <p className="text-bs-faint text-sm mt-1">
                     {log.identityNumber
                       ? `Nomor Karyawan: ${log.identityNumber} · `
                       : ''}
@@ -336,7 +336,7 @@ function AdminDashboard() {
 
             ) : (
 
-              <div className="bg-[#160909] border border-red-950 rounded-2xl p-6 text-center text-red-100/50">
+              <div className="bg-bs-abyss border border-bs-line rounded-2xl p-6 text-center text-bs-muted">
                 Tidak ada deteksi spoof
               </div>
 

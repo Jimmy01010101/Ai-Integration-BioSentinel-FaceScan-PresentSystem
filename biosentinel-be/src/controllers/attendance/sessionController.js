@@ -152,7 +152,112 @@ const getActiveSession = async (
   }
 };
 
+
+// =====================================================
+// GET SESSION LIST
+// Mengembalikan seluruh sesi presensi (terbaru dulu),
+// lengkap dengan rekap jumlah presensi per status.
+// Dipakai halaman "Riwayat Session" (Admin & Super Admin).
+// =====================================================
+const getSessionList = async (req, res) => {
+  try {
+
+    // AMBIL SEMUA SESI
+    const sessions =
+      await prisma.attendanceSession.findMany({
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+    // REKAP JUMLAH PRESENSI PER STATUS PER SESI
+    const grouped =
+      await prisma.attendance.groupBy({
+        by: ['attendanceSessionId', 'status'],
+        _count: {
+          _all: true
+        }
+      });
+
+    // PETA: { sessionId: { HADIR: n, ABSEN: n, ... } }
+    const recapMap = {};
+
+    grouped.forEach((row) => {
+
+      const sid = row.attendanceSessionId;
+
+      if (!recapMap[sid]) {
+        recapMap[sid] = {};
+      }
+
+      recapMap[sid][row.status] =
+        row._count._all;
+
+    });
+
+    // GABUNGKAN SESI + REKAP
+    const data = sessions.map((session) => {
+
+      const recap = recapMap[session.id] || {};
+
+      const totalHadir = recap.HADIR || 0;
+      const totalAbsen = recap.ABSEN || 0;
+      const totalIzin = recap.IZIN || 0;
+      const totalCuti = recap.CUTI || 0;
+      const totalSakit = recap.SAKIT || 0;
+
+      return {
+        id: session.id,
+        title: session.title,
+        startTime: session.startTime,
+        endTime: session.endTime,
+        isActive: session.isActive,
+        createdAt: session.createdAt,
+
+        startTimeWIB:
+          convertUTCToWIB(session.startTime),
+
+        endTimeWIB:
+          convertUTCToWIB(session.endTime),
+
+        totalHadir,
+        totalAbsen,
+        totalIzin,
+        totalCuti,
+        totalSakit,
+
+        totalRecord:
+          totalHadir +
+          totalAbsen +
+          totalIzin +
+          totalCuti +
+          totalSakit
+      };
+
+    });
+
+    return res.status(200).json({
+      success: true,
+      total: data.length,
+      data
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message:
+        'Internal server error'
+    });
+
+  }
+};
+
+
 module.exports = {
   createAttendanceSession,
-  getActiveSession
-}; 
+  getActiveSession,
+  getSessionList
+};

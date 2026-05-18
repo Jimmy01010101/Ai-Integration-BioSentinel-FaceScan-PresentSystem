@@ -793,18 +793,18 @@ const captureAttendance = async () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-br from-black via-[#160909] to-[#250909] text-white px-6 py-10">
+    <div className="min-h-screen bg-gradient-to-br from-black via-[#160909] to-[#250909] text-white px-4 sm:px-6 py-6 sm:py-10">
 
       {/* HEADER */}
       <div className="max-w-7xl mx-auto mb-10 flex flex-wrap items-end justify-between gap-4">
 
         <div>
 
-          <h1 className="text-5xl font-black text-red-500 mb-4">
+          <h1 className="text-3xl sm:text-5xl font-black text-bs-red mb-4">
             BioSentinel - AI 1.0
           </h1>
 
-          <p className="text-red-100/60 text-lg">
+          <p className="text-bs-muted text-lg">
             AI Biometric Attendance System
           </p>
 
@@ -812,7 +812,7 @@ const captureAttendance = async () => {
 
         <a
           href="/attendance/history"
-          className="inline-flex items-center gap-2 bg-[#160909] border border-red-950 hover:bg-red-950/40 transition-all px-5 py-3 rounded-2xl font-semibold"
+          className="inline-flex items-center gap-2 bg-bs-abyss border border-bs-line hover:bg-bs-red-deep/40 transition-all px-5 py-3 rounded-2xl font-semibold"
         >
           Lihat Riwayat Presensi
         </a>
@@ -821,18 +821,18 @@ const captureAttendance = async () => {
 
 
       {/* MAIN */}
-      <div className="max-w-7xl mx-auto grid xl:grid-cols-2 gap-8">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         {/* LEFT */}
         <div className="space-y-8">
 
           {/* SESSION */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 backdrop-blur-xl">
 
             <div className="flex items-center gap-4 mb-6">
 
               <ShieldCheck
-                className="text-red-500"
+                className="text-bs-red"
                 size={36}
               />
 
@@ -842,7 +842,7 @@ const captureAttendance = async () => {
                   Active Session
                 </h2>
 
-                <p className="text-red-100/50">
+                <p className="text-bs-muted">
                   Current attendance session
                 </p>
 
@@ -851,7 +851,7 @@ const captureAttendance = async () => {
             </div>
 
 
-            <div className="bg-[#160909] border border-red-950 rounded-2xl p-6">
+            <div className="bg-bs-abyss border border-bs-line rounded-2xl p-6">
 
               {
 
@@ -867,7 +867,7 @@ const captureAttendance = async () => {
 
                       </h3>
 
-                      <p className="text-red-100/50">
+                      <p className="text-bs-muted">
 
                         Attendance session active
 
@@ -879,7 +879,7 @@ const captureAttendance = async () => {
 
                   : (
 
-                    <div className="text-red-100/50">
+                    <div className="text-bs-muted">
 
                       No active attendance session
 
@@ -894,12 +894,12 @@ const captureAttendance = async () => {
           </div>
 
           {/* VERIFY */}
-            <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+            <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 backdrop-blur-xl">
 
             <div className="flex items-center gap-4 mb-6">
 
                 <UserCheck
-                className="text-red-500"
+                className="text-bs-red"
                 size={36}
                 />
 
@@ -909,7 +909,7 @@ const captureAttendance = async () => {
                     Employee Verification
                 </h2>
 
-                <p className="text-red-100/50">
+                <p className="text-bs-muted">
                     Autonomous AI Identity Verification
                 </p>
 
@@ -930,7 +930,7 @@ const captureAttendance = async () => {
                     e.target.value
                     )
                 }
-                className="w-full p-5 rounded-2xl bg-[#160909] border border-red-950 focus:border-red-600 outline-none"
+                className="w-full p-5 rounded-2xl bg-bs-abyss border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
 
@@ -945,7 +945,7 @@ const captureAttendance = async () => {
                         loading ||
                         employeeCode.length < 5
                     }
-                    className="w-full bg-red-700 hover:bg-red-600 transition-all duration-300 rounded-2xl p-5 font-bold text-lg disabled:opacity-50"
+                    className="w-full bg-bs-red hover:bg-bs-red transition-all duration-300 rounded-2xl p-5 font-bold text-lg disabled:opacity-50"
                     >
 
                     {
@@ -972,7 +972,7 @@ const captureAttendance = async () => {
 
                 userData && (
 
-                <div className="mt-8 bg-[#160909] border border-red-950 rounded-2xl p-6">
+                <div className="mt-8 bg-bs-abyss border border-bs-line rounded-2xl p-6">
 
                     <h3 className="text-xl font-black mb-2">
 
@@ -986,13 +986,13 @@ const captureAttendance = async () => {
 
                     </h3>
 
-                    <p className="text-green-400 font-semibold">
+                    <p className="text-bs-ok font-semibold">
 
                     Employee Verified
 
                     </p>
 
-                    <p className="text-red-100/50 mt-2">
+                    <p className="text-bs-muted mt-2">
 
                     Camera activated automatically
 
@@ -1013,12 +1013,12 @@ const captureAttendance = async () => {
         <div className="space-y-8">
 
           {/* CAMERA */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 backdrop-blur-xl">
 
             <div className="flex items-center gap-4 mb-6">
 
               <Camera
-                className="text-red-500"
+                className="text-bs-red"
                 size={36}
               />
 
@@ -1028,7 +1028,7 @@ const captureAttendance = async () => {
                   AI Face Scanner
                 </h2>
 
-                <p className="text-red-100/50">
+                <p className="text-bs-muted">
                   Realtime biometric scanning
                 </p>
 
@@ -1037,7 +1037,7 @@ const captureAttendance = async () => {
             </div>
 
 
-            <div className="relative bg-[#160909] border border-red-950 rounded-3xl overflow-hidden h-[420px] flex items-center justify-center">
+            <div className="relative bg-bs-abyss border border-bs-line rounded-3xl overflow-hidden h-[420px] flex items-center justify-center">
 
               {
 
@@ -1077,11 +1077,11 @@ const captureAttendance = async () => {
                     <div className="text-center">
 
                       <ScanFace
-                        className="mx-auto mb-5 text-red-500"
+                        className="mx-auto mb-5 text-bs-red"
                         size={60}
                       />
 
-                      <p className="text-red-100/50">
+                      <p className="text-bs-muted">
                         Waiting camera activation
                       </p>
 
@@ -1103,12 +1103,12 @@ const captureAttendance = async () => {
 
 
           {/* STATUS */}
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 backdrop-blur-xl">
 
             <div className="flex items-center gap-4 mb-8">
 
               <LoaderCircle
-                className="text-red-500"
+                className="text-bs-red"
                 size={36}
               />
 
@@ -1118,7 +1118,7 @@ const captureAttendance = async () => {
                   AI Scan Status
                 </h2>
 
-                <p className="text-red-100/50">
+                <p className="text-bs-muted">
                   Autonomous biometric processing
                 </p>
 
@@ -1129,41 +1129,41 @@ const captureAttendance = async () => {
 
             <div className="space-y-5">
 
-              <div className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between">
+              <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5 flex items-center justify-between">
 
                 <span>
                   Verification Status
                 </span>
 
-                <span className="text-red-400 font-semibold">
+                <span className="text-bs-red-bright font-semibold">
                   {scanStatus}
                 </span>
 
               </div>
 
 
-              <div className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between">
+              <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5 flex items-center justify-between">
 
                 <span>
                   Smile Verification
                 </span>
 
                 <Smile
-                  className="text-red-500"
+                  className="text-bs-red"
                   size={24}
                 />
 
               </div>
 
 
-              <div className="bg-[#160909] border border-red-950 rounded-2xl p-5 flex items-center justify-between">
+              <div className="bg-bs-abyss border border-bs-line rounded-2xl p-5 flex items-center justify-between">
 
                 <span>
                   Liveness Detection
                 </span>
 
                 <ShieldCheck
-                  className="text-green-400"
+                  className="text-bs-ok"
                   size={24}
                 />
 
@@ -1181,13 +1181,13 @@ const captureAttendance = async () => {
                   <div className="flex items-center gap-4">
 
                     <CheckCircle2
-                      className="text-green-400"
+                      className="text-bs-ok"
                       size={36}
                     />
 
                     <div>
 
-                      <h2 className="text-2xl font-black text-green-300">
+                      <h2 className="text-2xl font-black text-bs-ok">
 
                         Attendance Success
 
@@ -1224,22 +1224,22 @@ const captureAttendance = async () => {
 
         <div className="max-w-7xl mx-auto mt-8">
 
-          <div className="bg-black/40 border border-red-950 rounded-3xl p-8 backdrop-blur-xl">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 backdrop-blur-xl">
 
             <div className="flex items-center justify-between mb-6">
 
               <div>
-                <h2 className="text-2xl font-black text-red-400">
+                <h2 className="text-2xl font-black text-bs-red-bright">
                   Riwayat Presensi Minggu Ini
                 </h2>
-                <p className="text-red-100/50 text-sm mt-1">
+                <p className="text-bs-muted text-sm mt-1">
                   {userData.fullName} · {userData.identityNumber}
                 </p>
               </div>
 
               <a
                 href="/attendance/history"
-                className="text-sm text-red-300 hover:text-white transition-all"
+                className="text-sm text-bs-muted hover:text-white transition-all"
               >
                 Lihat Semua Riwayat →
               </a>
@@ -1248,13 +1248,13 @@ const captureAttendance = async () => {
 
             {weeklyLoading ? (
 
-              <p className="text-red-100/40 text-center py-8">
+              <p className="text-bs-faint text-center py-8">
                 Memuat riwayat...
               </p>
 
             ) : !weeklyHistory ? (
 
-              <p className="text-red-100/40 text-center py-8">
+              <p className="text-bs-faint text-center py-8">
                 Riwayat belum tersedia
               </p>
 
@@ -1263,12 +1263,12 @@ const captureAttendance = async () => {
               <>
 
                 {/* RINGKASAN */}
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-6">
 
                   {[
                     { label: 'Total', value: weeklyHistory.summary?.total, color: 'text-white' },
-                    { label: 'Hadir', value: weeklyHistory.summary?.hadir, color: 'text-green-400' },
-                    { label: 'Absen', value: weeklyHistory.summary?.absen, color: 'text-red-400' },
+                    { label: 'Hadir', value: weeklyHistory.summary?.hadir, color: 'text-bs-ok' },
+                    { label: 'Absen', value: weeklyHistory.summary?.absen, color: 'text-bs-red-bright' },
                     { label: 'Izin', value: weeklyHistory.summary?.izin, color: 'text-blue-300' },
                     { label: 'Cuti', value: weeklyHistory.summary?.cuti, color: 'text-purple-300' },
                     { label: 'Sakit', value: weeklyHistory.summary?.sakit, color: 'text-yellow-300' }
@@ -1276,9 +1276,9 @@ const captureAttendance = async () => {
 
                     <div
                       key={s.label}
-                      className="bg-[#160909] border border-red-950 rounded-2xl p-4 text-center"
+                      className="bg-bs-abyss border border-bs-line rounded-2xl p-4 text-center"
                     >
-                      <p className="text-red-100/50 text-xs mb-1">{s.label}</p>
+                      <p className="text-bs-muted text-xs mb-1">{s.label}</p>
                       <p className={`text-2xl font-black ${s.color}`}>
                         {s.value ?? 0}
                       </p>
@@ -1289,11 +1289,11 @@ const captureAttendance = async () => {
                 </div>
 
                 {/* TABEL */}
-                <div className="border border-red-950 rounded-2xl overflow-hidden">
+                <div className="border border-bs-line rounded-2xl overflow-hidden">
 
-                  <table className="w-full text-left text-sm">
+                  <div className="overflow-x-auto"><table className="w-full text-left text-sm min-w-[480px]">
 
-                    <thead className="bg-[#160909] text-red-100/60">
+                    <thead className="bg-bs-abyss text-bs-muted">
                       <tr>
                         <th className="px-5 py-3">Sesi</th>
                         <th className="px-5 py-3">Status</th>
@@ -1306,7 +1306,7 @@ const captureAttendance = async () => {
                       {(weeklyHistory.data || []).length === 0 ? (
 
                         <tr>
-                          <td colSpan={3} className="px-5 py-8 text-center text-red-100/40">
+                          <td colSpan={3} className="px-5 py-8 text-center text-bs-faint">
                             Belum ada presensi minggu ini
                           </td>
                         </tr>
@@ -1317,7 +1317,7 @@ const captureAttendance = async () => {
 
                           <tr
                             key={item.id}
-                            className="border-t border-red-950/50"
+                            className="border-t border-bs-line/50"
                           >
 
                             <td className="px-5 py-3 font-semibold">
@@ -1327,16 +1327,16 @@ const captureAttendance = async () => {
                             <td className="px-5 py-3">
                               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                 item.status === 'HADIR'
-                                  ? 'bg-green-900/40 text-green-400'
+                                  ? 'bg-green-900/40 text-bs-ok'
                                   : item.status === 'ABSEN'
-                                    ? 'bg-red-900/40 text-red-400'
-                                    : 'bg-[#160909] text-red-100/60'
+                                    ? 'bg-red-900/40 text-bs-red-bright'
+                                    : 'bg-bs-abyss text-bs-muted'
                               }`}>
                                 {item.status}
                               </span>
                             </td>
 
-                            <td className="px-5 py-3 text-red-100/60">
+                            <td className="px-5 py-3 text-bs-muted">
                               {formatShortTime(item.createdAt)}
                             </td>
 
@@ -1348,7 +1348,7 @@ const captureAttendance = async () => {
 
                     </tbody>
 
-                  </table>
+                  </table></div>
 
                 </div>
 

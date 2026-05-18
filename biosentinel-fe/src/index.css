@@ -1,1 +1,223 @@
 @import "tailwindcss";
+
+/* =====================================================
+   BIOSENTINEL-AI — CYBER SECURITY DESIGN SYSTEM
+   Tema: dark command-center, aksen merah, presisi tinggi.
+   ===================================================== */
+
+@theme {
+  /* PALET DASAR */
+  --color-bs-void: #050709;
+  --color-bs-abyss: #0a0e14;
+  --color-bs-panel: #0d1219;
+  --color-bs-panel-2: #111722;
+  --color-bs-line: #1c2430;
+
+  /* AKSEN MERAH */
+  --color-bs-red: #e8132b;
+  --color-bs-red-bright: #ff2740;
+  --color-bs-red-dim: #7f1020;
+  --color-bs-red-deep: #2a0810;
+
+  /* TEKS */
+  --color-bs-text: #e7ecf2;
+  --color-bs-muted: #7d8a9c;
+  --color-bs-faint: #4a5563;
+
+  /* STATUS */
+  --color-bs-ok: #21d07a;
+  --color-bs-warn: #f5a623;
+  --color-bs-info: #3da9fc;
+}
+
+/* =====================================================
+   BASE
+   ===================================================== */
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bs-void);
+  color: var(--color-bs-text);
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* GRID BACKGROUND — kesan command center */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(232, 19, 43, 0.10), transparent 42%),
+    radial-gradient(circle at 85% 88%, rgba(232, 19, 43, 0.07), transparent 45%),
+    var(--color-bs-void);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(120, 138, 156, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 138, 156, 0.045) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, #000 55%, transparent 100%);
+}
+
+/* =====================================================
+   SCROLLBAR
+   ===================================================== */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bs-abyss);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bs-line);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-bs-red-dim);
+}
+
+/* =====================================================
+   KOMPONEN UTILITY — dipakai lintas halaman
+   ===================================================== */
+
+/* PANEL — kartu dasar */
+.bs-panel {
+  background: linear-gradient(180deg, var(--color-bs-panel), var(--color-bs-abyss));
+  border: 1px solid var(--color-bs-line);
+  border-radius: 1rem;
+}
+
+.bs-panel-hover {
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.bs-panel-hover:hover {
+  border-color: var(--color-bs-red-dim);
+  transform: translateY(-2px);
+}
+
+/* HEADING dengan garis aksen */
+.bs-accent-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--color-bs-red-bright), var(--color-bs-red-dim));
+}
+
+/* TOMBOL */
+.bs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: all 0.18s ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.bs-btn-primary {
+  background: linear-gradient(180deg, var(--color-bs-red), var(--color-bs-red-dim));
+  color: #fff;
+  box-shadow: 0 4px 18px -6px rgba(232, 19, 43, 0.6);
+}
+.bs-btn-primary:hover {
+  filter: brightness(1.12);
+}
+.bs-btn-ghost {
+  background: var(--color-bs-panel-2);
+  border: 1px solid var(--color-bs-line);
+  color: var(--color-bs-text);
+}
+.bs-btn-ghost:hover {
+  border-color: var(--color-bs-red-dim);
+}
+
+/* INPUT */
+.bs-input {
+  width: 100%;
+  background: var(--color-bs-abyss);
+  border: 1px solid var(--color-bs-line);
+  border-radius: 0.75rem;
+  color: var(--color-bs-text);
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+.bs-input:focus {
+  border-color: var(--color-bs-red);
+}
+.bs-input::placeholder {
+  color: var(--color-bs-faint);
+}
+
+/* CHIP / BADGE */
+.bs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+/* MONO LABEL — kesan teknis */
+.bs-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  letter-spacing: 0.03em;
+}
+
+/* TITIK LIVE berdenyut */
+.bs-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--color-bs-ok);
+  box-shadow: 0 0 0 0 rgba(33, 208, 122, 0.6);
+  animation: bs-pulse 1.8s infinite;
+}
+@keyframes bs-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(33, 208, 122, 0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(33, 208, 122, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(33, 208, 122, 0); }
+}
+
+/* FADE IN untuk konten halaman */
+@keyframes bs-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.bs-fade-in {
+  animation: bs-fade-in 0.35s ease both;
+}
+
+/* SHIMMER untuk loading */
+@keyframes bs-shimmer {
+  0%   { background-position: -480px 0; }
+  100% { background-position: 480px 0; }
+}
+.bs-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bs-panel) 25%,
+    var(--color-bs-panel-2) 50%,
+    var(--color-bs-panel) 75%
+  );
+  background-size: 960px 100%;
+  animation: bs-shimmer 1.6s infinite linear;
+}

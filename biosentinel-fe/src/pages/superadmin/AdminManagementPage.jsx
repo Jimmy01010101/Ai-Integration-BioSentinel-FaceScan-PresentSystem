@@ -275,19 +275,19 @@ const AdminManagementPage = () => {
     <div className="text-white">
 
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
 
         <div>
 
           <h1 className="text-3xl font-black flex items-center gap-3">
 
-            <UserCog className="text-red-500" size={32} />
+            <UserCog className="text-bs-red" size={32} />
 
             Admin Management
 
           </h1>
 
-          <p className="text-red-100/50 mt-1 text-sm">
+          <p className="text-bs-muted mt-1 text-sm">
 
             CRUD akun Admin — kelola, non-aktifkan, atau hapus
 
@@ -297,7 +297,7 @@ const AdminManagementPage = () => {
 
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-2 bg-red-700 hover:bg-red-800 transition-all px-5 py-3 rounded-2xl font-semibold"
+          className="flex items-center gap-2 bg-bs-red hover:brightness-110 transition-all px-5 py-3 rounded-2xl font-semibold"
         >
 
           <Plus size={20} />
@@ -313,7 +313,7 @@ const AdminManagementPage = () => {
       <div className="relative mb-6">
 
         <Search
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-red-300/50"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-bs-muted/50"
           size={18}
         />
 
@@ -322,18 +322,18 @@ const AdminManagementPage = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cari admin..."
-          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-[#101827] border border-red-950 focus:border-red-600 outline-none"
+          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-bs-panel-2 border border-bs-line focus:border-bs-red-dim outline-none"
         />
 
       </div>
 
 
       {/* TABLE */}
-      <div className="bg-[#0b1322] border border-red-950 rounded-3xl overflow-hidden">
+      <div className="bg-bs-panel border border-bs-line rounded-3xl overflow-hidden">
 
-        <table className="w-full text-left">
+        <div className="overflow-x-auto"><table className="w-full text-left min-w-[600px]">
 
-          <thead className="bg-[#101827] text-red-100/60 text-sm">
+          <thead className="bg-bs-panel-2 text-bs-muted text-sm">
 
             <tr>
               <th className="px-6 py-4">Nama Lengkap</th>
@@ -349,7 +349,7 @@ const AdminManagementPage = () => {
             {loading ? (
 
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-red-100/40">
+                <td colSpan={4} className="px-6 py-6 sm:py-10 text-center text-bs-faint">
                   Memuat data...
                 </td>
               </tr>
@@ -357,7 +357,7 @@ const AdminManagementPage = () => {
             ) : filteredAdmins.length === 0 ? (
 
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-red-100/40">
+                <td colSpan={4} className="px-6 py-6 sm:py-10 text-center text-bs-faint">
                   Belum ada admin
                 </td>
               </tr>
@@ -368,14 +368,14 @@ const AdminManagementPage = () => {
 
                 <tr
                   key={admin.id}
-                  className="border-t border-red-950/50 hover:bg-[#101827]/50"
+                  className="border-t border-bs-line/50 hover:bg-bs-panel-2/50"
                 >
 
                   <td className="px-6 py-4 font-semibold">
                     {admin.fullName}
                   </td>
 
-                  <td className="px-6 py-4 text-red-100/70">
+                  <td className="px-6 py-4 text-bs-muted">
                     {admin.username}
                   </td>
 
@@ -386,7 +386,7 @@ const AdminManagementPage = () => {
                         Aktif
                       </span>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-red-900/40 text-red-400 text-xs font-semibold">
+                      <span className="px-3 py-1 rounded-full bg-red-900/40 text-bs-red-bright text-xs font-semibold">
                         Non-Aktif
                       </span>
                     )}
@@ -400,7 +400,7 @@ const AdminManagementPage = () => {
                       <button
                         onClick={() => openEditModal(admin)}
                         title="Edit"
-                        className="p-2 rounded-xl bg-[#101827] hover:bg-red-900/40 transition-all"
+                        className="p-2 rounded-xl bg-bs-panel-2 hover:bg-bs-red-deep transition-all"
                       >
                         <Pencil size={16} />
                       </button>
@@ -408,7 +408,7 @@ const AdminManagementPage = () => {
                       <button
                         onClick={() => handleToggleStatus(admin.id)}
                         title={admin.isActive ? 'Non-aktifkan' : 'Aktifkan'}
-                        className="p-2 rounded-xl bg-[#101827] hover:bg-red-900/40 transition-all"
+                        className="p-2 rounded-xl bg-bs-panel-2 hover:bg-bs-red-deep transition-all"
                       >
                         {admin.isActive
                           ? <ShieldOff size={16} />
@@ -418,7 +418,7 @@ const AdminManagementPage = () => {
                       <button
                         onClick={() => handleDelete(admin.id)}
                         title="Hapus"
-                        className="p-2 rounded-xl bg-[#101827] hover:bg-red-900/40 transition-all text-red-400"
+                        className="p-2 rounded-xl bg-bs-panel-2 hover:bg-bs-red-deep transition-all text-bs-red-bright"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -435,7 +435,7 @@ const AdminManagementPage = () => {
 
           </tbody>
 
-        </table>
+        </table></div>
 
       </div>
 
@@ -445,11 +445,11 @@ const AdminManagementPage = () => {
 
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 px-6">
 
-          <div className="bg-[#0b1322] border border-red-950 rounded-3xl p-8 w-full max-w-md relative">
+          <div className="bg-bs-panel border border-bs-line rounded-3xl p-8 w-full max-w-md relative">
 
             <button
               onClick={closeModal}
-              className="absolute top-5 right-5 text-red-300/60 hover:text-white"
+              className="absolute top-5 right-5 text-bs-muted/60 hover:text-white"
             >
               <X size={22} />
             </button>
@@ -462,7 +462,7 @@ const AdminManagementPage = () => {
 
               <div>
 
-                <label className="block mb-2 text-sm text-red-200/70">
+                <label className="block mb-2 text-sm text-bs-muted">
                   Nama Lengkap
                 </label>
 
@@ -473,14 +473,14 @@ const AdminManagementPage = () => {
                     setForm({ ...form, fullName: e.target.value })
                   }
                   placeholder="Masukkan nama lengkap"
-                  className="w-full p-3 rounded-2xl bg-[#101827] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-2xl bg-bs-panel-2 border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
               </div>
 
               <div>
 
-                <label className="block mb-2 text-sm text-red-200/70">
+                <label className="block mb-2 text-sm text-bs-muted">
                   Username
                 </label>
 
@@ -491,17 +491,17 @@ const AdminManagementPage = () => {
                     setForm({ ...form, username: e.target.value })
                   }
                   placeholder="Masukkan username"
-                  className="w-full p-3 rounded-2xl bg-[#101827] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-2xl bg-bs-panel-2 border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
               </div>
 
               <div>
 
-                <label className="block mb-2 text-sm text-red-200/70">
+                <label className="block mb-2 text-sm text-bs-muted">
                   Password
                   {editId && (
-                    <span className="text-red-100/40">
+                    <span className="text-bs-faint">
                       {' '}(kosongkan jika tidak diubah)
                     </span>
                   )}
@@ -515,7 +515,7 @@ const AdminManagementPage = () => {
                     setForm({ ...form, password: e.target.value })
                   }
                   placeholder="Masukkan password"
-                  className="w-full p-3 rounded-2xl bg-[#101827] border border-red-950 focus:border-red-600 outline-none"
+                  className="w-full p-3 rounded-2xl bg-bs-panel-2 border border-bs-line focus:border-bs-red-dim outline-none"
                 />
 
               </div>
@@ -526,7 +526,7 @@ const AdminManagementPage = () => {
 
               <button
                 onClick={closeModal}
-                className="flex-1 py-3 rounded-2xl bg-[#101827] border border-red-950 hover:bg-red-950/30 transition-all"
+                className="flex-1 py-3 rounded-2xl bg-bs-panel-2 border border-bs-line hover:bg-bs-red-deep/30 transition-all"
               >
                 Batal
               </button>
@@ -534,7 +534,7 @@ const AdminManagementPage = () => {
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex-1 py-3 rounded-2xl bg-red-700 hover:bg-red-800 transition-all font-bold disabled:opacity-50"
+                className="flex-1 py-3 rounded-2xl bg-bs-red hover:brightness-110 transition-all font-bold disabled:opacity-50"
               >
                 {submitting ? 'Menyimpan...' : 'Simpan'}
               </button>

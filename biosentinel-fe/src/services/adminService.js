@@ -157,3 +157,30 @@ export const manageAttendanceStatus =
 
     return response.data;
 };
+
+
+// ===========================
+// RIWAYAT SESSION
+// ===========================
+
+// Daftar semua sesi presensi
+export const getSessionList =
+  async () => {
+
+    const response =
+      await api.get('/session/list');
+
+    return response.data;
+};
+
+// Rekap presensi untuk satu sesi
+export const getSessionAttendance =
+  async (sessionId) => {
+
+    const response =
+      await api.get(
+        `/admin/report/session/${sessionId}`
+      );
+
+    return response.data;
+};

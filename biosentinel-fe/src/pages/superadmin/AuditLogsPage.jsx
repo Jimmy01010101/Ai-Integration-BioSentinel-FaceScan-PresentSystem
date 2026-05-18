@@ -17,7 +17,7 @@ import {
 } from '../../services/superAdminService';
 
 
-const AuditLogsPage = () => {
+function AuditLogsPage() {
 
   const [tab, setTab] = useState('audit');
 
@@ -71,34 +71,29 @@ const AuditLogsPage = () => {
 
   return (
 
-    <div className="text-white">
+    <div>
 
       {/* HEADER */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 mb-7">
 
-        <div>
-
-          <h1 className="text-3xl font-black flex items-center gap-3">
-
-            <ClipboardList className="text-red-500" size={32} />
-
-            Audit Logs
-
-          </h1>
-
-          <p className="text-red-100/50 mt-1 text-sm">
-
-            Riwayat aktivitas sistem & kejadian keamanan
-
-          </p>
-
+        <div className="flex items-start gap-3">
+          <div className="bs-accent-bar h-11 self-stretch" />
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black flex items-center gap-2.5">
+              <ClipboardList className="text-bs-red" size={26} />
+              Audit Logs
+            </h1>
+            <p className="text-bs-muted text-sm mt-1">
+              Riwayat aktivitas sistem & kejadian keamanan
+            </p>
+          </div>
         </div>
 
         <button
           onClick={() => fetchLogs(tab)}
-          className="flex items-center gap-2 bg-[#101827] border border-red-950 hover:bg-red-950/30 transition-all px-4 py-3 rounded-2xl"
+          className="bs-btn bs-btn-ghost px-4 py-2.5 text-sm"
         >
-          <RefreshCcw size={18} />
+          <RefreshCcw size={16} />
           Refresh
         </button>
 
@@ -106,14 +101,14 @@ const AuditLogsPage = () => {
 
 
       {/* TABS */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex gap-2 mb-6">
 
         <button
           onClick={() => setTab('audit')}
-          className={`px-5 py-2.5 rounded-2xl font-semibold transition-all ${
+          className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all ${
             tab === 'audit'
-              ? 'bg-red-700'
-              : 'bg-[#101827] border border-red-950'
+              ? 'bg-bs-red text-white'
+              : 'bg-bs-panel-2 text-bs-muted border border-bs-line hover:text-bs-text'
           }`}
         >
           Audit Trail
@@ -121,13 +116,13 @@ const AuditLogsPage = () => {
 
         <button
           onClick={() => setTab('security')}
-          className={`px-5 py-2.5 rounded-2xl font-semibold transition-all flex items-center gap-2 ${
+          className={`px-4 py-2.5 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${
             tab === 'security'
-              ? 'bg-red-700'
-              : 'bg-[#101827] border border-red-950'
+              ? 'bg-bs-red text-white'
+              : 'bg-bs-panel-2 text-bs-muted border border-bs-line hover:text-bs-text'
           }`}
         >
-          <ShieldAlert size={16} />
+          <ShieldAlert size={15} />
           Security Events
         </button>
 
@@ -135,76 +130,73 @@ const AuditLogsPage = () => {
 
 
       {/* TABLE */}
-      <div className="bg-[#0b1322] border border-red-950 rounded-3xl overflow-hidden">
+      <div className="bs-panel overflow-hidden">
 
-        <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto">
 
-          <thead className="bg-[#101827] text-red-100/60">
+          <table className="w-full text-left text-sm min-w-[640px]">
 
-            <tr>
-              <th className="px-6 py-4">Waktu</th>
-              <th className="px-6 py-4">Aksi</th>
-              <th className="px-6 py-4">Aktor</th>
-              <th className="px-6 py-4">Keterangan</th>
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {loading ? (
-
+            <thead className="bg-bs-panel-2 text-bs-muted">
               <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-red-100/40">
-                  Memuat data...
-                </td>
+                <th className="px-5 py-3.5 bs-mono text-[11px] tracking-wider">WAKTU</th>
+                <th className="px-5 py-3.5 bs-mono text-[11px] tracking-wider">AKSI</th>
+                <th className="px-5 py-3.5 bs-mono text-[11px] tracking-wider">AKTOR</th>
+                <th className="px-5 py-3.5 bs-mono text-[11px] tracking-wider">KETERANGAN</th>
               </tr>
+            </thead>
 
-            ) : logs.length === 0 ? (
+            <tbody>
 
-              <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-red-100/40">
-                  Belum ada log
-                </td>
-              </tr>
+              {loading ? (
 
-            ) : (
-
-              logs.map((log) => (
-
-                <tr
-                  key={log.id}
-                  className="border-t border-red-950/50 hover:bg-[#101827]/50"
-                >
-
-                  <td className="px-6 py-4 text-red-100/60">
-                    {formatTime(log.createdAt)}
+                <tr>
+                  <td colSpan={4} className="px-5 py-12 text-center text-bs-faint">
+                    Memuat data...
                   </td>
-
-                  <td className="px-6 py-4 font-semibold">
-                    {log.action}
-                  </td>
-
-                  <td className="px-6 py-4 text-red-100/70">
-                    {log.actorRole || '-'}
-                    {log.actorId ? ` #${log.actorId}` : ''}
-                  </td>
-
-                  <td className="px-6 py-4 text-red-100/60">
-                    {log.description ||
-                      log.reason ||
-                      '-'}
-                  </td>
-
                 </tr>
 
-              ))
+              ) : logs.length === 0 ? (
 
-            )}
+                <tr>
+                  <td colSpan={4} className="px-5 py-12 text-center text-bs-faint">
+                    Belum ada log
+                  </td>
+                </tr>
 
-          </tbody>
+              ) : (
 
-        </table>
+                logs.map((log) => (
+
+                  <tr
+                    key={log.id}
+                    className="border-t border-bs-line hover:bg-bs-panel-2/50 transition-colors"
+                  >
+                    <td className="px-5 py-3.5 text-bs-muted bs-mono text-xs whitespace-nowrap">
+                      {formatTime(log.createdAt)}
+                    </td>
+                    <td className="px-5 py-3.5">
+                      <span className="bs-chip bg-bs-red-deep text-bs-red-bright border border-bs-red-dim">
+                        {log.action}
+                      </span>
+                    </td>
+                    <td className="px-5 py-3.5 text-bs-muted">
+                      {log.actorRole || '-'}
+                      {log.actorId ? ` #${log.actorId}` : ''}
+                    </td>
+                    <td className="px-5 py-3.5 text-bs-muted">
+                      {log.description || log.reason || '-'}
+                    </td>
+                  </tr>
+
+                ))
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
@@ -212,6 +204,6 @@ const AuditLogsPage = () => {
 
   );
 
-};
+}
 
-export default AuditLogsPage; 
+export default AuditLogsPage;
